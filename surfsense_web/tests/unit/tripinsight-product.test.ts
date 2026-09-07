@@ -106,6 +106,12 @@ test("core thread is localized around research rather than upstream generic chat
 	]) {
 		assert.match(source, new RegExp(label));
 	}
-	assert.doesNotMatch(source, /Research the live web, scrape platforms, automate briefs/);
+	for (const legacyCopy of [
+		"Research the live web, scrape platforms, automate briefs",
+		"Connect a chat model to start chatting",
+		"Upload files, manage tools and more",
+	]) {
+		assert.doesNotMatch(source, new RegExp(legacyCopy));
+	}
 	assert.doesNotMatch(source, /Good morning|Good afternoon|Good evening|Night owl mode/);
 });
