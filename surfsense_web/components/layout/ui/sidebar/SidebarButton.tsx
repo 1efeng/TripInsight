@@ -5,6 +5,7 @@ import type React from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { getProductLabel, isHiddenPrimaryProductLabel } from "@/lib/product-terminology";
 import { cn } from "@/lib/utils";
 
 interface SidebarButtonProps {
@@ -64,6 +65,11 @@ export function SidebarButton({
 	className,
 	buttonProps,
 }: SidebarButtonProps) {
+	if (isHiddenPrimaryProductLabel(label)) return null;
+
+	const displayLabel = getProductLabel(label);
+	const displayTooltipContent =
+		typeof tooltipContent === "string" ? getProductLabel(tooltipContent) : tooltipContent;
 	const activeClassName = "bg-accent text-accent-foreground";
 
 	const iconNode = isCollapsed
@@ -75,7 +81,7 @@ export function SidebarButton({
 			variant="ghost"
 			type="button"
 			onClick={onClick}
-			aria-label={isCollapsed ? label : undefined}
+			aria-label={isCollapsed ? displayLabel : undefined}
 			className={cn(baseClassName, isActive && activeClassName, className)}
 			{...buttonProps}
 		>
@@ -95,7 +101,7 @@ export function SidebarButton({
 					)}
 				>
 					<span className="flex min-w-0 items-center gap-1.5">
-						<span className="truncate">{label}</span>
+						<span className="truncate">{displayLabel}</span>
 						{!isCollapsed && badge && typeof badge !== "string" ? badge : null}
 						{!isCollapsed && badge && typeof badge === "string" ? (
 							<span className="inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-medium text-white">
@@ -120,11 +126,11 @@ export function SidebarButton({
 				</span>
 			)}
 
-			<span className="sr-only">{label}</span>
+			<span className="sr-only">{displayLabel}</span>
 		</Button>
 	);
 
-	const renderTooltip = isCollapsed || !!tooltipContent;
+	const renderTooltip = isCollapsed || !!displayTooltipContent;
 	if (!renderTooltip) {
 		return button;
 	}
@@ -134,13 +140,13 @@ export function SidebarButton({
 			<TooltipTrigger asChild>{button}</TooltipTrigger>
 			<TooltipContent side="right" className="max-w-xs">
 				{isCollapsed
-					? (tooltipContent ?? (
+					? (displayTooltipContent ?? (
 							<>
-								{label}
+								{displayLabel}
 								{typeof badge === "string" && ` (${badge})`}
 							</>
 						))
-					: tooltipContent}
+					: displayTooltipContent}
 			</TooltipContent>
 		</Tooltip>
 	);
