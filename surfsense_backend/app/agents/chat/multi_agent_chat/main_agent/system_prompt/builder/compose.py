@@ -6,6 +6,7 @@ Section order (default flow)::
     [user's custom_system_instructions, if any]
     <core_behavior>                 # default body
     <knowledge_base_first>          # default body
+    <tripinsight_research_protocol> # default body
     <dynamic_context>               # always
     <routing>                       # default body
     <specialists>                   # always (dynamic roster)
@@ -20,7 +21,7 @@ Section order (default flow)::
 between identity and the default body so platform safety nets (KB-first,
 routing, citations, output formatting, refusal rules) always apply.
 
-``use_default_system_instructions=False`` skips the four "default body"
+``use_default_system_instructions=False`` skips the five "default body"
 sections but keeps all the always-on platform sections.
 """
 
@@ -70,6 +71,7 @@ def build_main_agent_system_prompt(
     if use_default_system_instructions:
         parts.append(_wrap(read_prompt_md("core_behavior.md")))
         parts.append(_wrap(read_prompt_md("kb_first.md")))
+        parts.append(_wrap(read_prompt_md("tripinsight_research_protocol.md")))
 
     parts.append(build_dynamic_context_section(visibility=visibility))
 
