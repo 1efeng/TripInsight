@@ -1,0 +1,324 @@
+name: Temporary upstream-first i18n cleanup
+
+on:
+  push:
+    branches:
+      - chore/remove-terminology-layer
+
+permissions:
+  contents: write
+
+jobs:
+  cleanup:
+    if: ${{ !contains(github.event.head_commit.message, '[cleanup-applied]') }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Restore upstream components and simplify TripInsight localization
+        shell: bash
+        run: |
+          set -euo pipefail
+          git remote add upstream https://github.com/MODSetter/SurfSense.git || true
+          git fetch --depth=1 upstream main
+          git checkout upstream/main -- \
+            surfsense_web/components/layout/ui/sidebar/SidebarButton.tsx \
+            surfsense_web/components/layout/ui/sidebar/SidebarSection.tsx
+
+          rm -f surfsense_web/lib/product-terminology.ts
+
+          cat > surfsense_web/contexts/LocaleContext.tsx <<'EOF'
+          "use client";
+
+          import type React from "react";
+          import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+          import enMessages from "../messages/en.json";
+          import zhMessages from "../messages/zh.json";
+
+          type Locale = "en" | "es" | "pt" | "hi" | "zh" | "ko";
+
+          const loadMessages = async (locale: Locale): Promise<typeof enMessages> => {
+          	switch (locale) {
+          		case "es":
+          			return (await import("../messages/es.json")).default;
+          		case "hi":
+          			return (await import("../messages/hi.json")).default;
+          		case "pt":
+          			return (await import("../messages/pt.json")).default;
+          		case "zh":
+          			return zhMessages;
+          		case "ko":
+          			return (await import("../messages/ko.json")).default;
+          		default:
+          			return enMessages;
+          	}
+          };
+
+          interface LocaleContextType {
+          	locale: Locale;
+          	messages: typeof enMessages;
+          	setLocale: (locale: Locale) => void;
+          }
+
+          const LocaleContext = createContext<LocaleContextType | undefined>(undefined);
+          const LOCALE_STORAGE_KEY = "tripinsight-locale";
+          const SUPPORTED_LOCALES: readonly Locale[] = ["en", "es", "pt", "hi", "zh", "ko"];
+          const htmlLang = (locale: Locale) => (locale === "zh" ? "zh-CN" : locale);
+
+          export function LocaleProvider({ children }: { children: React.ReactNode }) {
+          	const [locale, setLocaleState] = useState<Locale>("zh");
+          	const [messages, setMessages] = useState<typeof enMessages>(zhMessages);
+          	const [mounted, setMounted] = useState(false);
+
+          	useEffect(() => {
+          		setMounted(true);
+          		if (typeof window === "undefined") return;
+
+          		const stored = localStorage.getItem(LOCALE_STORAGE_KEY) as Locale | null;
+          		if (!stored || !SUPPORTED_LOCALES.includes(stored) || stored === "zh") return;
+
+          		void loadMessages(stored).then((storedMessages) => {
+          			setMessages(storedMessages);
+          			setLocaleState(stored);
+          		});
+          	}, []);
+
+          	const setLocale = useCallback(async (newLocale: Locale) => {
+          		const newMessages = await loadMessages(newLocale);
+          		setMessages(newMessages);
+          		setLocaleState(newLocale);
+          		if (typeof window !== "undefined") {
+          			localStorage.setItem(LOCALE_STORAGE_KEY, newLocale);
+          			document.documentElement.lang = htmlLang(newLocale);
+          		}
+          	}, []);
+
+          	useEffect(() => {
+          		if (typeof window !== "undefined" && mounted) {
+          			document.documentElement.lang = htmlLang(locale);
+          		}
+          	}, [locale, mounted]);
+
+          	const contextValue = useMemo(
+          		() => ({ locale, messages, setLocale }),
+          		[locale, messages, setLocale]
+          	);
+
+          	return <LocaleContext.Provider value={contextValue}>{children}</LocaleContext.Provider>;
+          }
+
+          export function useLocaleContext() {
+          	const context = useContext(LocaleContext);
+          	if (context === undefined) {
+          		throw new Error("useLocaleContext must be used within a LocaleProvider");
+          	}
+          	return context;
+          }
+          EOF
+
+          python - <<'PY'
+          from pathlib import Path
+          import re
+
+          def replace_many(path: str, replacements: list[tuple[str, str]]) -> None:
+              p = Path(path)
+              text = p.read_text()
+              for old, new in replacements:
+                  if old not in text:
+                      raise SystemExit(f"missing expected text in {path}: {old}")
+                  text = text.replace(old, new)
+              p.write_text(text)
+
+          replace_many("surfsense_web/messages/zh.json", [
+              ('"app_name": "SurfSense"', '"app_name": "TripInsight"'),
+              ('"register_subtitle": "注册以开始使用 SurfSense"', '"register_subtitle": "注册以开始使用 TripInsight"'),
+              ('"cloud_dev_notice": "SurfSense 云版本正在开发中。查看"', '"cloud_dev_notice": "TripInsight 云版本正在开发中。查看"'),
+              ('"create_title": "创建搜索空间"', '"create_title": "创建研究空间"'),
+              ('"create_description": "创建一个新的搜索空间来组织您的知识"', '"create_description": "创建研究空间，按目的地、市场或专题组织知识、数据源与研究记录"'),
+              ('"name_placeholder": "输入搜索空间名称"', '"name_placeholder": "例如：日本目的地研究"'),
+              ('"description_placeholder": "这个搜索空间是做什么的？"', '"description_placeholder": "这个研究空间要解决什么研究问题？"'),
+              ('"all_workspaces": "所有搜索空间"', '"all_workspaces": "所有研究空间"'),
+              ('"no_workspaces": "暂无搜索空间"', '"no_workspaces": "暂无研究空间"'),
+              ('"create_first_workspace": "创建您的第一个搜索空间以开始使用"', '"create_first_workspace": "创建第一个研究空间以开始目的地研究"'),
+              ('"create_new_workspace": "创建新的搜索空间"', '"create_new_workspace": "创建研究空间"'),
+              ('"delete_title": "删除搜索空间"', '"delete_title": "删除研究空间"'),
+              ('"leave_title": "退出搜索空间"', '"leave_title": "退出研究空间"'),
+              ('"welcome_title": "欢迎使用 SurfSense"', '"welcome_title": "开始你的第一次目的地研究"'),
+              ('"welcome_description": "创建您的第一个搜索空间，开始组织知识、连接数据源并与AI对话。"', '"welcome_description": "创建研究空间，连接知识与实时数据，沉淀目的地研究和游客洞察。"'),
+              ('"create_first_button": "创建第一个搜索空间"', '"create_first_button": "创建研究空间"'),
+              ('"title": "仪表盘"', '"title": "研究工作台"'),
+              ('"workspaces": "搜索空间"', '"workspaces": "研究空间"'),
+              ('"documents": "文档"', '"documents": "知识库"'),
+              ('"connectors": "连接器"', '"connectors": "数据源"'),
+              ('"chat": "聊天"', '"chat": "研究"'),
+              ('"no_recent_chats": "暂无最近对话"', '"no_recent_chats": "暂无最近研究"'),
+              ('"surfsense_dashboard": "SurfSense 仪表盘"', '"surfsense_dashboard": "TripInsight 研究工作台"'),
+              ('"welcome_message": "欢迎来到您的 SurfSense 仪表盘。"', '"welcome_message": "欢迎来到 TripInsight 研究工作台。"'),
+              ('"your_workspaces": "您的搜索空间"', '"your_workspaces": "您的研究空间"'),
+              ('"create_workspace": "创建搜索空间"', '"create_workspace": "创建研究空间"'),
+              ('"add_new_workspace": "添加新的搜索空间"', '"add_new_workspace": "添加研究空间"'),
+              ('"title": "连接器"', '"title": "数据源"'),
+              ('"subtitle": "管理您的已连接服务和数据源。"', '"subtitle": "管理用于目的地研究的外部服务和实时数据源。"'),
+              ('"add_connector": "添加连接器"', '"add_connector": "添加数据源"'),
+              ('"your_connectors": "您的连接器"', '"your_connectors": "已连接的数据源"'),
+              ('"no_connectors": "未找到连接器"', '"no_connectors": "暂无数据源"'),
+              ('"title": "文档"', '"title": "知识库"'),
+              ('"subtitle": "管理您的文档和文件。"', '"subtitle": "管理攻略、目的地资料、运营文档与历史研究成果。"'),
+              ('"no_documents": "未找到文档"', '"no_documents": "知识库暂无内容"'),
+              ('"empty_upload_files": "上传文件以开始使用"', '"empty_upload_files": "上传资料以开始构建旅游知识库"'),
+              ('"search_root": "文档"', '"search_root": "知识库"'),
+              ('"search_documents": "搜索文档"', '"search_documents": "搜索知识库"'),
+              ('"upload_documents": "上传文档"', '"upload_documents": "上传资料"'),
+              ('"recents": "最近"', '"recents": "最近研究"'),
+              ('"chats": "对话"', '"chats": "研究记录"'),
+              ('"shared_chats": "共享对话"', '"shared_chats": "共享研究"'),
+              ('"search_chats": "搜索对话..."', '"search_chats": "搜索研究记录..."'),
+              ('"no_chats_found": "未找到对话"', '"no_chats_found": "未找到研究记录"'),
+              ('"no_shared_chats": "暂无共享对话"', '"no_shared_chats": "暂无共享研究"'),
+              ('"shared_chat": "共享对话"', '"shared_chat": "共享研究"'),
+              ('"view_all_shared_chats": "查看所有共享对话"', '"view_all_shared_chats": "查看所有共享研究"'),
+              ('"view_all_chats": "查看所有对话"', '"view_all_chats": "查看所有研究记录"'),
+              ('"no_chats": "开始对话即可在此处查看"', '"no_chats": "开始研究后，记录会显示在这里"'),
+              ('"start_new_chat_hint": "开始新对话"', '"start_new_chat_hint": "开始新研究"'),
+              ('"new_chat": "新对话"', '"new_chat": "新建研究"'),
+              ('"select_workspace": "选择搜索空间"', '"select_workspace": "选择研究空间"'),
+              ('"workspace_settings": "搜索空间设置"', '"workspace_settings": "研究空间设置"'),
+              ('"see_all_workspaces": "查看所有搜索空间"', '"see_all_workspaces": "查看所有研究空间"'),
+              ('"all_connectors": "所有连接器"', '"all_connectors": "所有数据源"'),
+              ('"sign_in_prompt": "登录 SurfSense 开始您自己的对话。"', '"sign_in_prompt": "登录 TripInsight 开始你自己的目的地研究。"'),
+          ])
+
+          # Keep product wording in the existing upstream locale files.
+          locale_labels = {
+              "zh.json": {
+                  "automations": "自动化",
+                  "artifacts": "研究报告",
+                  "documents": "知识库",
+                  "playground": "调试台",
+                  "watch_local_folder": "监控本地资料",
+              },
+              "en.json": {
+                  "automations": "Automations",
+                  "artifacts": "Research Reports",
+                  "documents": "Knowledge Base",
+                  "playground": "Playground",
+                  "watch_local_folder": "Watch Local Sources",
+              },
+              "es.json": {
+                  "automations": "Automations",
+                  "artifacts": "Research Reports",
+                  "documents": "Knowledge Base",
+                  "playground": "Playground",
+                  "watch_local_folder": "Watch Local Sources",
+              },
+              "pt-BR.json": {
+                  "automations": "Automations",
+                  "artifacts": "Research Reports",
+                  "documents": "Knowledge Base",
+                  "playground": "Playground",
+                  "watch_local_folder": "Watch Local Sources",
+              },
+              "hi.json": {
+                  "automations": "Automations",
+                  "artifacts": "Research Reports",
+                  "documents": "Knowledge Base",
+                  "playground": "Playground",
+                  "watch_local_folder": "Watch Local Sources",
+              },
+              "ko.json": {
+                  "automations": "Automations",
+                  "artifacts": "Research Reports",
+                  "documents": "Knowledge Base",
+                  "playground": "Playground",
+                  "watch_local_folder": "Watch Local Sources",
+              },
+          }
+          messages_dir = Path("surfsense_web/messages")
+          for filename, labels in locale_labels.items():
+              path = messages_dir / filename
+              if not path.exists():
+                  if filename == "pt-BR.json":
+                      path = messages_dir / "pt.json"
+                  if not path.exists():
+                      raise SystemExit(f"missing locale file: {filename}")
+              text = path.read_text()
+              if '"automations":' in text and '"watch_local_folder":' in text:
+                  continue
+              match = re.search(r'^(\s*)"new_chat":\s*([^\n]+),\s*$', text, re.MULTILINE)
+              if not match:
+                  raise SystemExit(f"missing sidebar new_chat marker in {path}")
+              indent = match.group(1)
+              block = "".join(f'{indent}"{key}": "{value}",\n' for key, value in labels.items())
+              text = text[:match.end()] + "\n" + block.rstrip("\n") + text[match.end():]
+              path.write_text(text)
+
+          provider = Path("surfsense_web/components/layout/providers/LayoutDataProvider.tsx")
+          text = provider.read_text()
+          for old, new in [
+              ('title: "Automations",', 'title: tSidebar("automations"),'),
+              ('title: "Artifacts",', 'title: tSidebar("artifacts"),'),
+              ('title: "Connectors",', 'title: tSidebar("connectors"),'),
+              ('title: "Playground",', 'title: tSidebar("playground"),'),
+              ('title: "Documents",', 'title: tSidebar("documents"),'),
+          ]:
+              if old not in text:
+                  raise SystemExit(f"missing provider nav title: {old}")
+              text = text.replace(old, new, 1)
+          deps = '\t\t\tisDocumentsPage,\n\t\t]\n\t);'
+          if deps not in text:
+              raise SystemExit("missing navItems dependency marker")
+          text = text.replace(deps, '\t\t\tisDocumentsPage,\n\t\t\ttSidebar,\n\t\t]\n\t);', 1)
+          provider.write_text(text)
+
+          sidebar = Path("surfsense_web/components/layout/ui/sidebar/Sidebar.tsx")
+          text = sidebar.read_text()
+          old = 'function SidebarImportActions() {\n\tconst params = useParams();'
+          new = 'function SidebarImportActions() {\n\tconst t = useTranslations("sidebar");\n\tconst params = useParams();'
+          if old not in text:
+              raise SystemExit("missing SidebarImportActions marker")
+          text = text.replace(old, new, 1)
+          if 'label="Watch Local Folder"' not in text:
+              raise SystemExit("missing Watch Local Folder label")
+          text = text.replace('label="Watch Local Folder"', 'label={t("watch_local_folder")}', 1)
+          sidebar.write_text(text)
+
+          test_path = Path("surfsense_web/tests/unit/tripinsight-product.test.ts")
+          text = test_path.read_text()
+          text = text.replace('import { readFileSync } from "node:fs";', 'import { existsSync, readFileSync } from "node:fs";')
+          text = text.replace('import { getProductLabel, isHiddenPrimaryProductLabel } from "../../lib/product-terminology";\n', '')
+          start = text.index('test("Chinese primary navigation uses TripInsight research vocabulary"')
+          end = text.index('test("Chinese research entry exposes only the three frozen TripInsight scenarios"')
+          replacement = '''test("TripInsight product vocabulary lives in the existing locale files", () => {\n\tconst zh = JSON.parse(readFileSync("messages/zh.json", "utf8"));\n\tconst en = JSON.parse(readFileSync("messages/en.json", "utf8"));\n\n\tassert.equal(zh.common.app_name, "TripInsight");\n\tassert.equal(zh.sidebar.new_chat, "新建研究");\n\tassert.equal(zh.sidebar.chats, "研究记录");\n\tassert.equal(zh.sidebar.automations, "自动化");\n\tassert.equal(zh.sidebar.artifacts, "研究报告");\n\tassert.equal(zh.sidebar.documents, "知识库");\n\tassert.equal(zh.sidebar.connectors, "数据源");\n\tassert.equal(zh.sidebar.playground, "调试台");\n\tassert.equal(en.sidebar.artifacts, "Research Reports");\n\tassert.equal(en.sidebar.documents, "Knowledge Base");\n});\n\ntest("generic sidebar components stay aligned with upstream and contain no product terminology layer", () => {\n\tassert.equal(existsSync("lib/product-terminology.ts"), false);\n\tfor (const path of [\n\t\t"components/layout/ui/sidebar/SidebarButton.tsx",\n\t\t"components/layout/ui/sidebar/SidebarSection.tsx",\n\t]) {\n\t\tconst source = readFileSync(path, "utf8");\n\t\tassert.doesNotMatch(source, /product-terminology|useLocaleContext|getProductLabel/);\n\t}\n});\n\n'''
+          text = text[:start] + replacement + text[end:]
+          test_path.write_text(text)
+          PY
+
+      - name: Format and test frontend changes
+        working-directory: surfsense_web
+        run: |
+          corepack enable
+          pnpm install --frozen-lockfile
+          pnpm exec biome check --write \
+            contexts/LocaleContext.tsx \
+            messages/en.json \
+            messages/es.json \
+            messages/hi.json \
+            messages/ko.json \
+            messages/pt.json \
+            messages/zh.json \
+            components/layout/providers/LayoutDataProvider.tsx \
+            components/layout/ui/sidebar/Sidebar.tsx \
+            components/layout/ui/sidebar/SidebarButton.tsx \
+            components/layout/ui/sidebar/SidebarSection.tsx \
+            tests/unit/tripinsight-product.test.ts
+          pnpm test:unit
+
+      - name: Commit cleanup
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "refactor: remove custom terminology layer [cleanup-applied]"
+          git push
