@@ -10,11 +10,6 @@ import { GlobalLoadingProvider } from "@/components/providers/GlobalLoadingProvi
 import { I18nProvider } from "@/components/providers/I18nProvider";
 import { PostHogProvider } from "@/components/providers/PostHogProvider";
 import { ZeroProvider } from "@/components/providers/ZeroProvider";
-import {
-	OrganizationJsonLd,
-	SoftwareApplicationJsonLd,
-	WebSiteJsonLd,
-} from "@/components/seo/json-ld";
 import { ThemeProvider } from "@/components/theme/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 import { LocaleProvider } from "@/contexts/LocaleContext";
@@ -46,58 +41,34 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-	metadataBase: new URL("https://www.surfsense.com"),
-	alternates: {
-		canonical: "https://www.surfsense.com",
+	title: {
+		default: "TripInsight - AI 旅游研究与目的地情报工作台",
+		template: "%s | TripInsight",
 	},
-	title: "SurfSense: Open-Source NotebookLM Alternative & Web Research",
 	description:
-		"The open-source NotebookLM alternative. Research the open web with live data from Reddit, YouTube, TikTok, Indeed & more, through one platform, API, or MCP server.",
+		"面向旅游内容、目的地运营与研究团队，连接内部知识与开放网络实时信息，通过 AI Agent 完成目的地研究、游客反馈洞察与持续情报监控。",
 	keywords: [
-		"open web research platform",
-		"web research for AI agents",
-		"live web data for agents",
-		"web scraping API",
-		"reddit scraper api",
-		"youtube scraper api",
-		"deep research agent",
-		"mcp server",
-		"agent harness",
-		"open source NotebookLM alternative",
-		"SurfSense",
+		"TripInsight",
+		"AI 旅游研究",
+		"目的地情报",
+		"目的地研究",
+		"游客洞察",
+		"旅游内容研究",
+		"Research Agent",
+		"Destination Intelligence",
 	],
 	openGraph: {
-		title: "SurfSense - NotebookLM for Open Web Research",
+		title: "TripInsight - AI 旅游研究与目的地情报工作台",
 		description:
-			"The open-source NotebookLM alternative. Research the open web with live data from Reddit, YouTube, TikTok, Indeed & more, through one platform, API, or MCP server.",
-		url: "https://www.surfsense.com",
-		siteName: "SurfSense",
+			"连接内部知识与开放网络实时信息，用 AI Agent 完成目的地研究、游客洞察和持续情报监控。",
+		siteName: "TripInsight",
 		type: "website",
-		images: [
-			{
-				url: "/og-image.png",
-				width: 1200,
-				height: 630,
-				alt: "SurfSense, open-source NotebookLM alternative for AI agents",
-			},
-		],
-		locale: "en_US",
+		locale: "zh_CN",
 	},
 	twitter: {
 		card: "summary_large_image",
-		title: "SurfSense - NotebookLM for Open Web Research",
-		description:
-			"The open-source NotebookLM alternative. Research the open web with live data from Reddit, YouTube, TikTok, Indeed & more, through one platform, API, or MCP server.",
-		creator: "@SurfSenseAI",
-		site: "@SurfSenseAI",
-		images: [
-			{
-				url: "/og-image-twitter.png",
-				width: 1200,
-				height: 630,
-				alt: "SurfSense, open-source NotebookLM alternative for AI agents",
-			},
-		],
+		title: "TripInsight - AI 旅游研究与目的地情报工作台",
+		description: "AI Travel Research & Destination Intelligence Workspace",
 	},
 };
 
@@ -106,12 +77,9 @@ export default function RootLayout({
 }: Readonly<{
 	children: React.ReactNode;
 }>) {
-	// Using client-side i18n
-	// Language can be switched dynamically through LanguageSwitcher component
-	// Locale state is managed by LocaleContext and persisted in localStorage
 	return (
 		<html
-			lang="en"
+			lang="zh-CN"
 			data-surfsense-auth-type={resolveRuntimeAuthUiMode(BUILD_TIME_AUTH_TYPE)}
 			suppressHydrationWarning
 		>
@@ -120,9 +88,6 @@ export default function RootLayout({
 					{getRuntimeAuthInitScript(BUILD_TIME_AUTH_TYPE)}
 				</Script>
 				<link rel="preconnect" href="https://api.github.com" />
-				<OrganizationJsonLd />
-				<WebSiteJsonLd />
-				<SoftwareApplicationJsonLd />
 			</head>
 			<body className={cn(roboto.className, "bg-main-panel antialiased h-full w-full ")}>
 				<PostHogProvider>
