@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import test from "node:test";
 import { getChatExampleCategories } from "../../lib/chat/example-prompts";
 import {
@@ -52,4 +53,23 @@ test("English research entry mirrors the same scenario structure", () => {
 		categories.map((category) => category.label),
 		["Destination Research", "Traveler Insights", "Destination Monitoring"]
 	);
+});
+
+test("research composer header keeps the primary surface focused on research", () => {
+	const source = readFileSync("components/new-chat/chat-header.tsx", "utf8");
+
+	assert.match(source, /ModelSelector/);
+	assert.doesNotMatch(source, /ImageModelSelector/);
+});
+
+test("Chinese research composer exposes localized context and model controls", () => {
+	const addMenuSource = readFileSync("components/assistant-ui/composer-add-menu-drawer.tsx", "utf8");
+	const modelSelectorSource = readFileSync("components/new-chat/model-selector.tsx", "utf8");
+
+	for (const label of ["上传研究资料", "知识库", "数据源", "研究工具"]) {
+		assert.match(addMenuSource, new RegExp(label));
+	}
+	for (const label of ["搜索模型", "自动选择", "管理模型", "选择研究模型"]) {
+		assert.match(modelSelectorSource, new RegExp(label));
+	}
 });
