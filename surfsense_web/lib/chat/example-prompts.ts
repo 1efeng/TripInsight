@@ -21,7 +21,7 @@ const ZH_RESEARCH_CATEGORIES: ChatExampleCategory[] = [
 		label: "目的地研究",
 		prompts: [
 			"调研东京秋季情侣旅行市场，分析近期热门区域、游客关注点、消费变化和内容机会，并为关键结论附上来源。",
-			"研究京都红叶季的最新开放信息、交通变化、热门景点与游客反馈，生成一份带引用的目的地 Brief。",
+			"研究京都红叶季的最新开放信息、交通变化、热门景点与游客反馈；先完成多来源研究和引用核验，再生成一份可下载的 PDF 目的地研究报告。",
 			"对比曼谷、清迈和普吉岛近期游客关注点与消费体验，给出适合内容团队的选题方向。",
 		],
 	},
@@ -51,7 +51,7 @@ const EN_RESEARCH_CATEGORIES: ChatExampleCategory[] = [
 		label: "Destination Research",
 		prompts: [
 			"Research Tokyo's autumn couples travel market, including trending neighborhoods, traveler concerns, spending shifts, and content opportunities. Cite the key evidence.",
-			"Research Kyoto's latest autumn foliage season updates, transport changes, popular attractions, and traveler feedback, then create a cited destination brief.",
+			"Research Kyoto's latest autumn foliage season updates, transport changes, popular attractions, and traveler feedback. Complete multi-source research and citation checks first, then create a downloadable PDF destination research report.",
 			"Compare current traveler interests and spending experiences across Bangkok, Chiang Mai, and Phuket, then suggest content opportunities for a travel team.",
 		],
 	},
