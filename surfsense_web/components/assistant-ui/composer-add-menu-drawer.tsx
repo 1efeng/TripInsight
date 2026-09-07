@@ -28,6 +28,7 @@ import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
 import { Switch } from "@/components/ui/switch";
+import { useLocaleContext } from "@/contexts/LocaleContext";
 import { getConnectorIcon } from "@/contracts/enums/connectorIcons";
 import {
 	CONNECTOR_TOOL_ICON_PATHS,
@@ -96,6 +97,8 @@ export function ComposerAddMenuDrawer({
 }: ComposerAddMenuDrawerProps) {
 	const params = useParams();
 	const router = useRouter();
+	const { locale } = useLocaleContext();
+	const isChinese = locale === "zh";
 	const workspaceId = getWorkspaceIdNumber(params);
 	const [open, setOpen] = useState(false);
 	const [stack, setStack] = useState<Screen[]>([{ kind: "root" }]);
@@ -125,12 +128,18 @@ export function ComposerAddMenuDrawer({
 
 	const title =
 		current.kind === "connectors"
-			? "MCP Connectors"
+			? isChinese
+				? "数据源"
+				: "MCP Connectors"
 			: current.kind === "tools"
-				? "Manage Tools"
+				? isChinese
+					? "工具设置"
+					: "Manage Tools"
 				: current.kind === "toolGroup"
 					? current.label
-					: "Add";
+					: isChinese
+						? "添加研究上下文"
+						: "Add";
 
 	const renderToolRow = (name: string) => {
 		const isDisabled = disabledToolsSet.has(name);
@@ -161,7 +170,9 @@ export function ComposerAddMenuDrawer({
 						}}
 					>
 						<Upload className="size-4 shrink-0 text-muted-foreground" />
-						<span className="flex-1 text-left">Upload Files</span>
+						<span className="flex-1 text-left">
+							{isChinese ? "上传研究资料" : "Upload Files"}
+						</span>
 					</button>
 					<button
 						type="button"
@@ -174,16 +185,20 @@ export function ComposerAddMenuDrawer({
 						}}
 					>
 						<LibraryBig className="size-4 shrink-0 text-muted-foreground" />
-						<span className="flex-1 text-left">Documents</span>
+						<span className="flex-1 text-left">{isChinese ? "知识库" : "Documents"}</span>
 					</button>
 					<button type="button" className={ROW} onClick={() => push({ kind: "connectors" })}>
 						<Unplug className="size-4 shrink-0 text-muted-foreground" />
-						<span className="flex-1 text-left">MCP Connectors</span>
+						<span className="flex-1 text-left">
+							{isChinese ? "数据源" : "MCP Connectors"}
+						</span>
 						<ChevronRight className="size-4 shrink-0 text-muted-foreground" />
 					</button>
 					<button type="button" className={ROW} onClick={() => push({ kind: "tools" })}>
 						<Settings2 className="size-4 shrink-0 text-muted-foreground" />
-						<span className="flex-1 text-left">Manage Tools</span>
+						<span className="flex-1 text-left">
+							{isChinese ? "研究工具" : "Manage Tools"}
+						</span>
 						<ChevronRight className="size-4 shrink-0 text-muted-foreground" />
 					</button>
 				</>
@@ -195,7 +210,7 @@ export function ComposerAddMenuDrawer({
 				<>
 					{connectorRows.length === 0 ? (
 						<p className="px-4 py-6 text-center text-sm text-muted-foreground">
-							No connectors yet.
+							{isChinese ? "暂无已连接数据源。" : "No connectors yet."}
 						</p>
 					) : (
 						connectorRows.map((row) => (
@@ -215,7 +230,9 @@ export function ComposerAddMenuDrawer({
 								) : row.health === "failed" ? (
 									<TriangleAlert
 										className="size-4 shrink-0 text-destructive"
-										aria-label={row.errorMessage ?? "Indexing failed"}
+										aria-label={
+											row.errorMessage ?? (isChinese ? "索引失败" : "Indexing failed")
+										}
 									/>
 								) : row.accountCount > 1 ? (
 									<span className="shrink-0 text-xs text-muted-foreground">{row.accountCount}</span>
@@ -233,7 +250,9 @@ export function ComposerAddMenuDrawer({
 						}}
 					>
 						<LayoutGrid className="size-4 shrink-0 text-muted-foreground" />
-						<span className="flex-1 text-left">Manage connectors</span>
+						<span className="flex-1 text-left">
+							{isChinese ? "管理数据源" : "Manage connectors"}
+						</span>
 					</button>
 				</>
 			);
@@ -273,7 +292,7 @@ export function ComposerAddMenuDrawer({
 				{connectorToolGroups.length > 0 && (
 					<div>
 						<div className="px-4 pt-3 pb-1 text-xs text-muted-foreground font-semibold select-none">
-							Connector Actions
+							{isChinese ? "数据源工具" : "Connector Actions"}
 						</div>
 						{connectorToolGroups.map((group) => {
 							const iconInfo = CONNECTOR_TOOL_ICON_PATHS[group.connectorIcon ?? ""];
@@ -338,7 +357,7 @@ export function ComposerAddMenuDrawer({
 							size="icon"
 							className="size-9 shrink-0"
 							onClick={pop}
-							aria-label="Back"
+							aria-label={isChinese ? "返回" : "Back"}
 						>
 							<ChevronLeft className="size-5" />
 						</Button>
