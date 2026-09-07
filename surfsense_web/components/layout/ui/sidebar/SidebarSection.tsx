@@ -96,6 +96,7 @@ export function SidebarSection({
 						{children}
 					</div>
 				</div>
+			</div>
 		</Collapsible>
 	);
 }
