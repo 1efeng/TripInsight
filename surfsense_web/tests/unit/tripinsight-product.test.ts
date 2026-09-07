@@ -1,30 +1,33 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import test from "node:test";
 import { getChatExampleCategories } from "../../lib/chat/example-prompts";
-import { getProductLabel, isHiddenPrimaryProductLabel } from "../../lib/product-terminology";
 
-test("Chinese primary navigation uses TripInsight research vocabulary", () => {
-	assert.equal(getProductLabel("New Chat", "zh"), "新建研究");
-	assert.equal(getProductLabel("Chats", "zh"), "研究记录");
-	assert.equal(getProductLabel("Documents", "zh"), "知识库");
-	assert.equal(getProductLabel("Connectors", "zh"), "数据源");
-	assert.equal(getProductLabel("Artifacts", "zh"), "研究报告");
-	assert.equal(getProductLabel("Automations", "zh"), "自动化");
-	assert.equal(getProductLabel("Playground", "zh"), "调试台");
+test("TripInsight product vocabulary lives in the existing locale files", () => {
+	const zh = JSON.parse(readFileSync("messages/zh.json", "utf8"));
+	const en = JSON.parse(readFileSync("messages/en.json", "utf8"));
+
+	assert.equal(zh.common.app_name, "TripInsight");
+	assert.equal(zh.sidebar.new_chat, "新建研究");
+	assert.equal(zh.sidebar.chats, "研究记录");
+	assert.equal(zh.sidebar.automations, "自动化");
+	assert.equal(zh.sidebar.artifacts, "研究报告");
+	assert.equal(zh.sidebar.documents, "知识库");
+	assert.equal(zh.sidebar.connectors, "数据源");
+	assert.equal(zh.sidebar.playground, "调试台");
+	assert.equal(en.sidebar.artifacts, "Research Reports");
+	assert.equal(en.sidebar.documents, "Knowledge Base");
 });
 
-test("English navigation remains usable after the Chinese-first fork", () => {
-	assert.equal(getProductLabel("New Chat", "en"), "New Research");
-	assert.equal(getProductLabel("Documents", "en"), "Knowledge Base");
-	assert.equal(getProductLabel("Connectors", "en"), "Sources");
-	assert.equal(getProductLabel("Artifacts", "en"), "Research Reports");
-	assert.equal(getProductLabel("Playground", "en"), "Playground");
-});
-
-test("developer playground remains available in primary product navigation", () => {
-	assert.equal(isHiddenPrimaryProductLabel("Playground"), false);
-	assert.equal(isHiddenPrimaryProductLabel("Automations"), false);
+test("generic sidebar components stay aligned with upstream and contain no product terminology layer", () => {
+	assert.equal(existsSync("lib/product-terminology.ts"), false);
+	for (const path of [
+		"components/layout/ui/sidebar/SidebarButton.tsx",
+		"components/layout/ui/sidebar/SidebarSection.tsx",
+	]) {
+		const source = readFileSync(path, "utf8");
+		assert.doesNotMatch(source, /product-terminology|useLocaleContext|getProductLabel/);
+	}
 });
 
 test("Chinese research entry exposes only the three frozen TripInsight scenarios", () => {

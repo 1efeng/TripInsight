@@ -406,6 +406,7 @@ export function Sidebar({
 
 /** Desktop-only local folder action rendered above "Connect your agent". */
 function SidebarImportActions() {
+	const t = useTranslations("sidebar");
 	const params = useParams();
 	const workspaceId = getWorkspaceIdNumber(params) ?? 0;
 	const { isDesktop } = usePlatform();
@@ -419,7 +420,7 @@ function SidebarImportActions() {
 			{isDesktop && (
 				<SidebarButton
 					icon={FolderSync}
-					label="Watch Local Folder"
+					label={t("watch_local_folder")}
 					onClick={() => (isAnonymous ? gate("watch local folders") : setFolderWatchOpen(true))}
 				/>
 			)}
