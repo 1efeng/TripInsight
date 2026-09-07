@@ -22,6 +22,27 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Apply evidence-first homepage demo copy
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path("surfsense_web/components/homepage/tripinsight-home.tsx")
+          text = path.read_text()
+          replacements = {
+              "Research Brief · 实时研究中": "Research Brief · 示例界面",
+              "12 个来源": "多源研究",
+              "<p className=\"text-xs font-medium opacity-60\">发现</p>": "<p className=\"text-xs font-medium opacity-60\">示例洞察</p>",
+              "涩谷与银座仍是高热区域，但近期评论中“排队时间”和“夜间体验”成为增长最快的两个关注点。": "近期评论中反复出现“排队时间”和“夜间体验”相关反馈，系统会将其标记为需要进一步核验的研究关注点。",
+          }
+          for old, new in replacements.items():
+              if old not in text:
+                  raise SystemExit(f"Expected homepage copy not found: {old}")
+              text = text.replace(old, new, 1)
+          path.write_text(text)
+          PY
+
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
