@@ -7,10 +7,11 @@ import { Navbar } from "@/components/homepage/navbar";
 
 export default function HomePageLayout({ children }: { children: React.ReactNode }) {
 	const pathname = usePathname();
+	const isTripInsightHome = pathname === "/";
 	const isAuthPage = pathname === "/login" || pathname === "/register";
 	const isFreeModelChat = /^\/free\/[^/]+$/.test(pathname);
 
-	if (isFreeModelChat) {
+	if (isFreeModelChat || isTripInsightHome) {
 		return <>{children}</>;
 	}
 
