@@ -91,3 +91,21 @@ test("Chinese research composer exposes localized context and model controls", (
 		assert.match(modelSelectorSource, new RegExp(label));
 	}
 });
+
+test("core thread is localized around research rather than upstream generic chat", () => {
+	const source = readFileSync("components/assistant-ui/thread.tsx", "utf8");
+
+	for (const label of [
+		"今天想研究什么？",
+		"研究目的地、游客反馈或近期变化",
+		"添加研究上下文",
+		"上传研究资料",
+		"数据源",
+		"研究工具",
+		"开始研究",
+	]) {
+		assert.match(source, new RegExp(label));
+	}
+	assert.doesNotMatch(source, /Research the live web, scrape platforms, automate briefs/);
+	assert.doesNotMatch(source, /Good morning|Good afternoon|Good evening|Night owl mode/);
+});
