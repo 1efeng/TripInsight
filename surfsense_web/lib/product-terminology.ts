@@ -11,6 +11,7 @@ const ZH_PRODUCT_LABELS: Record<string, string> = {
 	Documents: "知识库",
 	文档: "知识库",
 	连接器: "数据源",
+	Playground: "调试台",
 	"Watch Local Folder": "监控本地资料",
 };
 
@@ -22,10 +23,11 @@ const EN_PRODUCT_LABELS: Record<string, string> = {
 	Artifacts: "Research Reports",
 	Connectors: "Sources",
 	Documents: "Knowledge Base",
+	Playground: "Playground",
 	"Watch Local Folder": "Watch Local Sources",
 };
 
-const HIDDEN_PRIMARY_LABELS = new Set(["Playground"]);
+const HIDDEN_PRIMARY_LABELS = new Set<string>();
 
 /**
  * Keep upstream route/domain names stable while presenting TripInsight's
@@ -38,8 +40,9 @@ export function getProductLabel(label: string, locale: string): string {
 }
 
 /**
- * Upstream developer utilities can stay routable without occupying the primary
- * product navigation used by destination researchers and operations teams.
+ * Reserve a single product-level switch for entries that may need to be hidden
+ * from primary navigation later. TripInsight currently exposes all upstream
+ * primary entries, including Playground.
  */
 export function isHiddenPrimaryProductLabel(label: string): boolean {
 	return HIDDEN_PRIMARY_LABELS.has(label);
