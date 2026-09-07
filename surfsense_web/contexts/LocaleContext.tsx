@@ -3,12 +3,13 @@
 import type React from "react";
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import enMessages from "../messages/en.json";
+import zhMessages from "../messages/zh.json";
 
 type Locale = "en" | "es" | "pt" | "hi" | "zh" | "ko";
 
 /**
  * Dynamically load locale messages on demand.
- * English is the default and always available synchronously.
+ * TripInsight is Chinese-first, so Chinese messages are available synchronously.
  */
 const loadMessages = async (locale: Locale): Promise<typeof enMessages> => {
 	switch (locale) {
@@ -19,7 +20,7 @@ const loadMessages = async (locale: Locale): Promise<typeof enMessages> => {
 		case "pt":
 			return (await import("../messages/pt.json")).default;
 		case "zh":
-			return (await import("../messages/zh.json")).default;
+			return zhMessages;
 		case "ko":
 			return (await import("../messages/ko.json")).default;
 		default:
@@ -35,48 +36,52 @@ interface LocaleContextType {
 
 const LocaleContext = createContext<LocaleContextType | undefined>(undefined);
 
-const LOCALE_STORAGE_KEY = "surfsense-locale";
+// Use a TripInsight-specific key so an old SurfSense locale preference does not
+// silently override the Chinese-first product default after the fork.
+const LOCALE_STORAGE_KEY = "tripinsight-locale";
+
+const htmlLang = (locale: Locale) => (locale === "zh" ? "zh-CN" : locale);
 
 export function LocaleProvider({ children }: { children: React.ReactNode }) {
-	// Always start with 'en' to avoid hydration mismatch
-	// Then sync with localStorage after mount
-	const [locale, setLocaleState] = useState<Locale>("en");
-	const [messages, setMessages] = useState<typeof enMessages>(enMessages);
+	// Chinese is the product default and is loaded synchronously to avoid a
+	// post-hydration language flash for first-time users.
+	const [locale, setLocaleState] = useState<Locale>("zh");
+	const [messages, setMessages] = useState<typeof enMessages>(zhMessages);
 	const [mounted, setMounted] = useState(false);
 
-	// Load locale from localStorage after component mounts (client-side only)
+	// Restore a TripInsight-specific user preference after mount.
 	useEffect(() => {
 		setMounted(true);
-		if (typeof window !== "undefined") {
-			const stored = localStorage.getItem(LOCALE_STORAGE_KEY);
-			if (stored && (["en", "es", "pt", "hi", "zh", "ko"] as const).includes(stored as Locale)) {
-				const storedLocale = stored as Locale;
-				setLocaleState(storedLocale);
-				// Load messages for non-English locale
-				if (storedLocale !== "en") {
-					loadMessages(storedLocale).then(setMessages);
-				}
-			}
+		if (typeof window === "undefined") return;
+
+		const stored = localStorage.getItem(LOCALE_STORAGE_KEY);
+		if (!stored || !(["en", "es", "pt", "hi", "zh", "ko"] as const).includes(stored as Locale)) {
+			return;
 		}
+
+		const storedLocale = stored as Locale;
+		if (storedLocale === "zh") return;
+
+		void loadMessages(storedLocale).then((storedMessages) => {
+			setMessages(storedMessages);
+			setLocaleState(storedLocale);
+		});
 	}, []);
 
-	// Update locale and persist to localStorage
+	// Update locale and persist to localStorage.
 	const setLocale = useCallback(async (newLocale: Locale) => {
-		// Load messages for the new locale
 		const newMessages = await loadMessages(newLocale);
 		setMessages(newMessages);
 		setLocaleState(newLocale);
 		if (typeof window !== "undefined") {
 			localStorage.setItem(LOCALE_STORAGE_KEY, newLocale);
-			// Update HTML lang attribute
-			document.documentElement.lang = newLocale;
+			document.documentElement.lang = htmlLang(newLocale);
 		}
 	}, []);
 
-	// Set HTML lang attribute when locale changes
 	useEffect(() => {
 		if (typeof window !== "undefined" && mounted) {
-			document.documentElement.lang = locale;
+			document.documentElement.lang = htmlLang(locale);
 		}
 	}, [locale, mounted]);
 
