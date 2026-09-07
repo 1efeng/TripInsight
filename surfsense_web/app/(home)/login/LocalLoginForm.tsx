@@ -10,6 +10,7 @@ import { loginMutationAtom } from "@/atoms/auth/auth-mutation.atoms";
 import { useRuntimeConfig } from "@/components/providers/runtime-config";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
+import { useLocaleContext } from "@/contexts/LocaleContext";
 import { getAuthErrorDetails, isNetworkError } from "@/lib/auth-errors";
 import { getPostLoginRedirectPath } from "@/lib/auth-utils";
 import { ValidationError } from "@/lib/error";
@@ -17,6 +18,8 @@ import { trackLoginAttempt, trackLoginFailure } from "@/lib/posthog/events";
 
 export function LocalLoginForm() {
 	const t = useTranslations("auth");
+	const { locale } = useLocaleContext();
+	const isChinese = locale === "zh";
 	const [username, setUsername] = useState("");
 	const [password, setPassword] = useState("");
 	const [showPassword, setShowPassword] = useState(false);
@@ -108,7 +111,7 @@ export function LocalLoginForm() {
 									strokeLinejoin="round"
 									className="flex-shrink-0 mt-0.5 text-destructive"
 								>
-									<title>Error Icon</title>
+									<title>{isChinese ? "错误" : "Error Icon"}</title>
 									<circle cx="12" cy="12" r="10" />
 									<line x1="15" y1="9" x2="9" y2="15" />
 									<line x1="9" y1="9" x2="15" y2="15" />
@@ -124,7 +127,7 @@ export function LocalLoginForm() {
 										setError({ title: null, message: null });
 									}}
 									className="size-6 flex-shrink-0 text-destructive hover:bg-transparent hover:text-destructive/90"
-									aria-label="Dismiss error"
+									aria-label={isChinese ? "关闭错误提示" : "Dismiss error"}
 									type="button"
 								>
 									<svg
@@ -138,7 +141,7 @@ export function LocalLoginForm() {
 										strokeLinecap="round"
 										strokeLinejoin="round"
 									>
-										<title>Close</title>
+										<title>{isChinese ? "关闭" : "Close"}</title>
 										<line x1="18" y1="6" x2="6" y2="18" />
 										<line x1="6" y1="6" x2="18" y2="18" />
 									</svg>
@@ -158,7 +161,7 @@ export function LocalLoginForm() {
 						autoComplete="username"
 						required
 						maxLength={254}
-						placeholder="you@example.com"
+						placeholder={isChinese ? "请输入邮箱" : "you@example.com"}
 						value={username}
 						onChange={(e) => setUsername(e.target.value)}
 						className={`mt-1 block w-full rounded-md border px-3 py-1.5 md:py-2 shadow-sm focus:outline-none focus:ring-1 bg-background text-foreground transition-all ${
@@ -180,7 +183,7 @@ export function LocalLoginForm() {
 							type={showPassword ? "text" : "password"}
 							autoComplete="current-password"
 							required
-							placeholder="Enter your password"
+							placeholder={isChinese ? "请输入密码" : "Enter your password"}
 							value={password}
 							onChange={(e) => setPassword(e.target.value)}
 							className={`block w-full rounded-md border pr-10 px-3 py-1.5 md:py-2 shadow-sm focus:outline-none focus:ring-1 bg-background text-foreground transition-all ${
