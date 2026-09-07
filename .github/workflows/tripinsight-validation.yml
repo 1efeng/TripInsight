@@ -52,15 +52,14 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Install uv
-        uses: astral-sh/setup-uv@v8.1.0
+      - name: Install Ruff
+        run: python -m pip install ruff==0.15.8
 
       - name: Format changed backend Python files
-        working-directory: surfsense_backend
         run: |
-          uvx ruff@0.15.8 format \
-            app/agents/chat/multi_agent_chat/main_agent/system_prompt/builder/compose.py \
-            tests/unit/agents/multi_agent_chat/test_tripinsight_research_prompt.py
+          ruff format \
+            surfsense_backend/app/agents/chat/multi_agent_chat/main_agent/system_prompt/builder/compose.py \
+            surfsense_backend/tests/unit/agents/multi_agent_chat/test_tripinsight_research_prompt.py
 
       - name: Commit formatter output
         shell: bash
