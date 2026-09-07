@@ -7,11 +7,18 @@ import { Navbar } from "@/components/homepage/navbar";
 
 export default function HomePageLayout({ children }: { children: React.ReactNode }) {
 	const pathname = usePathname();
+	const isTripInsightLanding = pathname === "/";
 	const isAuthPage = pathname === "/login" || pathname === "/register";
 	const isFreeModelChat = /^\/free\/[^/]+$/.test(pathname);
 
 	if (isFreeModelChat) {
 		return <>{children}</>;
+	}
+
+	// TripInsight owns the root marketing experience. Keep the upstream SurfSense
+	// shell available for legacy secondary routes until they are productized.
+	if (isTripInsightLanding) {
+		return <main className="min-h-screen overflow-x-hidden">{children}</main>;
 	}
 
 	return (

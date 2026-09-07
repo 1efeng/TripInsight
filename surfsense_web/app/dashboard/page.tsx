@@ -10,6 +10,7 @@ import { workspacesAtom } from "@/atoms/workspaces/workspace-query.atoms";
 import { CreateWorkspaceDialog } from "@/components/layout";
 import { Button } from "@/components/ui/button";
 import { Card, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { useLocaleContext } from "@/contexts/LocaleContext";
 import { useGlobalLoadingEffect } from "@/hooks/use-global-loading";
 
 function ErrorScreen({ message }: { message: string }) {
@@ -43,6 +44,8 @@ function ErrorScreen({ message }: { message: string }) {
 
 function EmptyState({ onCreateClick }: { onCreateClick: () => void }) {
 	const t = useTranslations("workspace");
+	const { locale } = useLocaleContext();
+	const isChinese = locale === "zh";
 
 	return (
 		<div className="flex min-h-screen flex-col items-center justify-center gap-4 p-4">
@@ -57,13 +60,19 @@ function EmptyState({ onCreateClick }: { onCreateClick: () => void }) {
 				</div>
 
 				<div className="flex flex-col gap-2">
-					<h1 className="text-2xl font-bold">{t("welcome_title")}</h1>
-					<p className="max-w-md text-muted-foreground">{t("welcome_description")}</p>
+					<h1 className="text-2xl font-bold">
+						{isChinese ? "开始你的第一次目的地研究" : t("welcome_title")}
+					</h1>
+					<p className="max-w-md text-muted-foreground">
+						{isChinese
+							? "创建研究空间，连接知识与实时数据，沉淀目的地研究和游客洞察。"
+							: t("welcome_description")}
+					</p>
 				</div>
 
 				<Button size="lg" onClick={onCreateClick} className="gap-2">
 					<Plus className="h-5 w-5" />
-					{t("create_first_button")}
+					{isChinese ? "创建研究空间" : t("create_first_button")}
 				</Button>
 			</motion.div>
 		</div>

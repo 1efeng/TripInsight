@@ -3,6 +3,7 @@ import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { Logo } from "@/components/Logo";
 import { Button } from "@/components/ui/button";
+import { useLocaleContext } from "@/contexts/LocaleContext";
 import { buildBackendUrl } from "@/lib/env-config";
 import { trackLoginAttempt } from "@/lib/posthog/events";
 import { AmbientBackground } from "./AmbientBackground";
@@ -37,6 +38,8 @@ function GoogleGLogo({ className }: { className?: string }) {
 
 export function GoogleLoginButton() {
 	const t = useTranslations("auth");
+	const { locale } = useLocaleContext();
+	const isChinese = locale === "zh";
 	const [isRedirecting, setIsRedirecting] = useState(false);
 
 	const handleGoogleLogin = () => {
@@ -57,54 +60,17 @@ export function GoogleLoginButton() {
 		<div className="relative w-full overflow-hidden">
 			<AmbientBackground />
 			<div className="mx-auto flex h-screen max-w-lg flex-col items-center justify-center px-6 md:px-0">
-				<Logo className="h-16 w-16 md:h-32 md:w-32 rounded-full my-4 md:my-8 transition-all" />
-				{/* <h1 className="my-8 text-xl font-bold text-neutral-800 dark:text-neutral-100 md:text-4xl">
-					Login
-				</h1> */}
-				{/* 
-				<motion.div
-					initial={{ opacity: 0, y: -5 }}
-					animate={{ opacity: 1, y: 0 }}
-					transition={{ duration: 0.3 }}
-					className="mb-4 w-full overflow-hidden rounded-lg border border-yellow-200 bg-yellow-50 text-yellow-900 shadow-sm dark:border-yellow-900/30 dark:bg-yellow-900/20 dark:text-yellow-200"
-				>
-					<motion.div
-						className="flex items-center gap-2 p-4"
-						initial={{ x: -5 }}
-						animate={{ x: 0 }}
-						transition={{ delay: 0.1, duration: 0.2 }}
-					>
-						<svg
-							xmlns="http://www.w3.org/2000/svg"
-							width="16"
-							height="16"
-							viewBox="0 0 24 24"
-							fill="none"
-							stroke="currentColor"
-							strokeWidth="2"
-							strokeLinecap="round"
-							strokeLinejoin="round"
-							className="flex-shrink-0"
-						>
-							<title>Google Logo</title>
-							<path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
-							<line x1="12" y1="9" x2="12" y2="13" />
-							<line x1="12" y1="17" x2="12.01" y2="17" />
-						</svg>
-						<div className="ml-1">
-							<p className="text-sm font-medium">
-								{t("cloud_dev_notice")}{" "}
-								<a
-									href="/docs"
-									className="text-blue-600 underline dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300"
-								>
-									{t("docs")}
-								</a>{" "}
-								{t("cloud_dev_self_hosted")}
-							</p>
-						</div>
-					</motion.div>
-				</motion.div> */}
+				<Logo className="h-16 w-16 md:h-24 md:w-24 rounded-md transition-all" />
+				<div className="mt-4 mb-7 text-center md:mt-6 md:mb-9">
+					<p className="text-xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-100 md:text-2xl">
+						TripInsight
+					</p>
+					<p className="mt-1.5 text-sm text-muted-foreground">
+						{isChinese
+							? "AI 旅游研究与目的地情报工作台"
+							: "AI Travel Research & Destination Intelligence Workspace"}
+					</p>
+				</div>
 
 				<Button
 					variant="outline"

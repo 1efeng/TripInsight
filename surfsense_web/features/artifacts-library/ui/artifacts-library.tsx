@@ -1,8 +1,9 @@
 "use client";
 
-import { RefreshCw, Shapes, TriangleAlert } from "lucide-react";
+import { FileText, RefreshCw, TriangleAlert } from "lucide-react";
 import { useMemo } from "react";
 import { Button } from "@/components/ui/button";
+import { useLocaleContext } from "@/contexts/LocaleContext";
 import { artifactChatHref } from "@/features/chat-artifacts/lib/artifact-deep-link";
 import { useLibraryArtifacts } from "../hooks/use-library-artifacts";
 import { useLibraryDeliverableJobs } from "../hooks/use-library-deliverable-jobs";
@@ -23,41 +24,56 @@ function LoadingState() {
 }
 
 function ErrorState({ onRetry }: { onRetry: () => void }) {
+	const { locale } = useLocaleContext();
+	const isChinese = locale === "zh";
+
 	return (
 		<div className="flex flex-col items-center justify-center gap-3 rounded-xl border border-dashed py-20 text-center">
 			<span className="flex size-12 items-center justify-center rounded-full bg-destructive/10 text-destructive">
 				<TriangleAlert className="size-6" />
 			</span>
 			<div>
-				<p className="font-medium text-foreground">Couldn't load artifacts</p>
+				<p className="font-medium text-foreground">
+					{isChinese ? "研究成果加载失败" : "Couldn't load research outputs"}
+				</p>
 				<p className="mt-1 text-sm text-muted-foreground">
-					Something went wrong fetching this workspace's deliverables.
+					{isChinese
+						? "获取当前研究空间的成果时出现问题。"
+						: "Something went wrong fetching this workspace's research outputs."}
 				</p>
 			</div>
 			<Button variant="outline" size="sm" onClick={onRetry}>
 				<RefreshCw className="size-4" />
-				Retry
+				{isChinese ? "重试" : "Retry"}
 			</Button>
 		</div>
 	);
 }
 
 function EmptyState() {
+	const { locale } = useLocaleContext();
+	const isChinese = locale === "zh";
+
 	return (
 		<div className="rounded-lg border border-dashed border-border/60 bg-muted/20 px-6 py-12 text-center">
 			<div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-muted text-muted-foreground">
-				<Shapes className="h-6 w-6" aria-hidden />
+				<FileText className="h-6 w-6" aria-hidden />
 			</div>
-			<h3 className="mt-4 text-base font-semibold text-foreground">No artifacts yet</h3>
+			<h3 className="mt-4 text-base font-semibold text-foreground">
+				{isChinese ? "还没有研究报告" : "No research reports yet"}
+			</h3>
 			<p className="mt-1 text-sm text-muted-foreground max-w-md mx-auto">
-				Artifacts collect the reports, resumes, podcasts, presentations, and images SurfSense
-				creates for this workspace. Generated deliverables from your chats will appear here.
+				{isChinese
+					? "研究过程中生成的报告、演示和其他可交付成果会沉淀在这里，并保留与原研究记录的关联。"
+					: "Reports, presentations, and other deliverables generated during research will appear here and stay linked to their source research."}
 			</p>
 		</div>
 	);
 }
 
 export function ArtifactsLibrary({ workspaceId }: { workspaceId: number }) {
+	const { locale } = useLocaleContext();
+	const isChinese = locale === "zh";
 	const { artifacts, loading, error, refresh } = useLibraryArtifacts(workspaceId);
 	const liveVideoRuns = useLibraryVideoRuns(workspaceId);
 	const livePodcastRuns = useLibraryPodcastRuns(workspaceId);
@@ -75,14 +91,25 @@ export function ArtifactsLibrary({ workspaceId }: { workspaceId: number }) {
 
 	return (
 		<div className="w-full min-w-0 max-w-full space-y-6 overflow-x-hidden">
-			<header className="flex items-center justify-between gap-4 flex-wrap">
-				<div className="flex items-baseline gap-3">
-					<h1 className="text-xl md:text-2xl font-semibold text-foreground">Artifacts</h1>
-					{!loading && merged.length > 0 ? (
-						<p className="whitespace-nowrap text-sm text-muted-foreground">
-							{merged.length} {merged.length === 1 ? "artifact" : "artifacts"}
-						</p>
-					) : null}
+			<header className="flex items-start justify-between gap-4 flex-wrap">
+				<div>
+					<div className="flex items-baseline gap-3">
+						<h1 className="text-xl md:text-2xl font-semibold text-foreground">
+							{isChinese ? "研究报告" : "Research Reports"}
+						</h1>
+						{!loading && merged.length > 0 ? (
+							<p className="whitespace-nowrap text-sm text-muted-foreground">
+								{isChinese
+									? `${merged.length} 项成果`
+									: `${merged.length} ${merged.length === 1 ? "output" : "outputs"}`}
+							</p>
+						) : null}
+					</div>
+					<p className="mt-1.5 text-sm text-muted-foreground">
+						{isChinese
+							? "集中查看目的地研究生成的报告和可交付成果。"
+							: "Review reports and deliverables generated from destination research."}
+					</p>
 				</div>
 			</header>
 

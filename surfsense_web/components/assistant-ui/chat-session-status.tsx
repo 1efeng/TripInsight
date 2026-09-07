@@ -2,6 +2,7 @@
 
 import type { FC } from "react";
 import { Spinner } from "@/components/ui/spinner";
+import { useLocaleContext } from "@/contexts/LocaleContext";
 import { cn } from "@/lib/utils";
 
 interface ChatSessionStatusProps {
@@ -23,6 +24,9 @@ export const ChatSessionStatus: FC<ChatSessionStatusProps> = ({
 	members,
 	className,
 }) => {
+	const { locale } = useLocaleContext();
+	const isChinese = locale === "zh";
+
 	if (!isAiResponding || !respondingToUserId) {
 		return null;
 	}
@@ -33,7 +37,9 @@ export const ChatSessionStatus: FC<ChatSessionStatusProps> = ({
 
 	const respondingUser = members.find((m) => m.user_id === respondingToUserId);
 	const displayName =
-		respondingUser?.user_display_name || respondingUser?.user_email || "another user";
+		respondingUser?.user_display_name ||
+		respondingUser?.user_email ||
+		(isChinese ? "另一位成员" : "another user");
 
 	return (
 		<div
@@ -44,7 +50,11 @@ export const ChatSessionStatus: FC<ChatSessionStatusProps> = ({
 			)}
 		>
 			<Spinner size="xs" />
-			<span>Currently responding to {displayName}</span>
+			<span>
+				{isChinese
+					? `AI 正在响应 ${displayName} 的研究请求`
+					: `Currently responding to ${displayName}`}
+			</span>
 		</div>
 	);
 };

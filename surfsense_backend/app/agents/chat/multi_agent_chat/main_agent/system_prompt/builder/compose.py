@@ -8,6 +8,7 @@ Section order (default flow)::
     <knowledge_base_first>          # default body
     <dynamic_context>               # always
     <routing>                       # default body
+    <tripinsight_research_protocol> # default body/product overlay
     <specialists>                   # always (dynamic roster)
     <tools>                         # always (vertical-slice)
     <memory_protocol>               # default body
@@ -20,7 +21,7 @@ Section order (default flow)::
 between identity and the default body so platform safety nets (KB-first,
 routing, citations, output formatting, refusal rules) always apply.
 
-``use_default_system_instructions=False`` skips the four "default body"
+``use_default_system_instructions=False`` skips the five "default body"
 sections but keeps all the always-on platform sections.
 """
 
@@ -75,6 +76,11 @@ def build_main_agent_system_prompt(
 
     if use_default_system_instructions:
         parts.append(_wrap(read_prompt_md("routing.md")))
+        # Product-specific research behavior is an overlay on top of the
+        # upstream generic routing contract. Keeping it after routing lets
+        # TripInsight specialize composite research/report requests without
+        # changing specialist or tool contracts.
+        parts.append(_wrap(read_prompt_md("tripinsight_research_protocol.md")))
 
     parts.append(build_specialists_section(registry_subagent_prompt_lines))
     parts.append(

@@ -9,6 +9,7 @@ import {
 	DropdownMenuItem,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useLocaleContext } from "@/contexts/LocaleContext";
 import { cn } from "@/lib/utils";
 import type { Workspace } from "../../types/layout.types";
 
@@ -28,6 +29,8 @@ export function SidebarHeader({
 	className,
 }: SidebarHeaderProps) {
 	const t = useTranslations("sidebar");
+	const { locale } = useLocaleContext();
+	const isChinese = locale === "zh";
 
 	return (
 		<div className={cn("flex min-w-0 flex-1 items-center", className)}>
@@ -40,7 +43,9 @@ export function SidebarHeader({
 							isCollapsed && "w-10"
 						)}
 					>
-						<span className="truncate text-sm">{workspace?.name ?? t("select_workspace")}</span>
+						<span className="truncate text-sm">
+							{workspace?.name ?? (isChinese ? "选择研究空间" : t("select_workspace"))}
+						</span>
 						<ChevronsUpDown className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
 					</Button>
 				</DropdownMenuTrigger>
@@ -51,7 +56,7 @@ export function SidebarHeader({
 					</DropdownMenuItem>
 					<DropdownMenuItem onClick={onSettings}>
 						<Settings className="h-4 w-4" />
-						{t("workspace_settings")}
+						{isChinese ? "研究空间设置" : t("workspace_settings")}
 					</DropdownMenuItem>
 				</DropdownMenuContent>
 			</DropdownMenu>

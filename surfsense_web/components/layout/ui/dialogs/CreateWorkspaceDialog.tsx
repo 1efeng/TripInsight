@@ -28,11 +28,12 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
+import { useLocaleContext } from "@/contexts/LocaleContext";
 import { cacheKeys } from "@/lib/query-client/cache-keys";
 import { queryClient } from "@/lib/query-client/client";
 
 const formSchema = z.object({
-	name: z.string().min(1, "Name is required"),
+	name: z.string().min(1, "请输入研究空间名称"),
 	description: z.string().optional(),
 });
 
@@ -46,6 +47,8 @@ interface CreateWorkspaceDialogProps {
 export function CreateWorkspaceDialog({ open, onOpenChange }: CreateWorkspaceDialogProps) {
 	const t = useTranslations("workspace");
 	const tCommon = useTranslations("common");
+	const { locale } = useLocaleContext();
+	const isChinese = locale === "zh";
 	const router = useRouter();
 	const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -78,15 +81,19 @@ export function CreateWorkspaceDialog({ open, onOpenChange }: CreateWorkspaceDia
 					result.llm_setup
 				);
 			}
-			// A fresh workspace can never be recovery, so this matches the gate,
-			// which is the authoritative net regardless.
 			const isInitialSetup = result.llm_setup?.stage === "initial_setup";
 			router.push(
 				isInitialSetup ? `/dashboard/${result.id}/onboard` : `/dashboard/${result.id}/new-chat`
 			);
 		} catch (error) {
 			console.error("Failed to create workspace:", error);
-			toast.error(error instanceof Error ? error.message : "Failed to create workspace");
+			toast.error(
+				error instanceof Error
+					? error.message
+					: isChinese
+						? "创建研究空间失败"
+						: "Failed to create workspace"
+			);
 			setIsSubmitting(false);
 		}
 	};
@@ -104,9 +111,13 @@ export function CreateWorkspaceDialog({ open, onOpenChange }: CreateWorkspaceDia
 				<DialogHeader className="space-y-2 pb-2">
 					<div className="flex items-center gap-2 sm:gap-3">
 						<div className="flex-1 min-w-0">
-							<DialogTitle className="text-base sm:text-lg">{t("create_title")}</DialogTitle>
+							<DialogTitle className="text-base sm:text-lg">
+								{isChinese ? "创建研究空间" : t("create_title")}
+							</DialogTitle>
 							<DialogDescription className="text-xs sm:text-sm mt-0.5">
-								{t("create_description")}
+								{isChinese
+									? "按目的地、市场或专题组织知识、数据源与研究记录。"
+									: t("create_description")}
 							</DialogDescription>
 						</div>
 					</div>
@@ -122,7 +133,7 @@ export function CreateWorkspaceDialog({ open, onOpenChange }: CreateWorkspaceDia
 									<FormLabel className="text-sm">{t("name_label")}</FormLabel>
 									<FormControl>
 										<Input
-											placeholder={t("name_placeholder")}
+											placeholder={isChinese ? "例如：日本目的地研究" : t("name_placeholder")}
 											{...field}
 											autoFocus
 											className="text-sm h-9 sm:h-10 select-text"
@@ -146,7 +157,11 @@ export function CreateWorkspaceDialog({ open, onOpenChange }: CreateWorkspaceDia
 									</FormLabel>
 									<FormControl>
 										<Input
-											placeholder={t("description_placeholder")}
+											placeholder={
+												isChinese
+													? "例如：沉淀日本目的地资料、游客反馈与周期研究"
+													: t("description_placeholder")
+											}
 											{...field}
 											className="text-sm h-9 sm:h-10 select-text"
 										/>
@@ -171,7 +186,9 @@ export function CreateWorkspaceDialog({ open, onOpenChange }: CreateWorkspaceDia
 								disabled={isSubmitting}
 								className="h-8 sm:h-9 text-xs sm:text-sm relative"
 							>
-								<span className={isSubmitting ? "opacity-0" : ""}>{t("create_button")}</span>
+								<span className={isSubmitting ? "opacity-0" : ""}>
+									{isChinese ? "创建研究空间" : t("create_button")}
+								</span>
 								{isSubmitting && <Spinner size="sm" className="absolute" />}
 							</Button>
 						</DialogFooter>

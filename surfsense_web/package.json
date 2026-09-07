@@ -1,9 +1,9 @@
 {
-	"name": "surfsense_web",
+	"name": "tripinsight_web",
 	"version": "0.0.39",
 	"private": true,
 	"packageManager": "pnpm@10.26.0",
-	"description": "SurfSense Frontend",
+	"description": "TripInsight - AI travel research and destination intelligence workspace",
 	"scripts": {
 		"dev": "next dev --turbopack",
 		"dev:turbo": "next dev --turbopack",

@@ -15,7 +15,7 @@ export const Logo = ({
 		<Image
 			src="/icon-128.svg"
 			className={cn("select-none dark:invert", className)}
-			alt="SurfSense"
+			alt="TripInsight"
 			width={128}
 			height={128}
 			priority={priority}
@@ -27,7 +27,7 @@ export const Logo = ({
 	}
 
 	return (
-		<Link href="/" className="select-none">
+		<Link href="/" className="select-none" aria-label="TripInsight">
 			{image}
 		</Link>
 	);

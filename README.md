@@ -1,290 +1,146 @@
-<a href="https://www.surfsense.com/"><img width="1584" height="396" alt="SurfSense, the open-source NotebookLM alternative for open web research" src="https://github.com/user-attachments/assets/9361ef58-1753-4b6e-b275-5020d8847261" /></a>
+# TripInsight
 
+> AI 旅游研究与目的地情报工作台
 
+TripInsight 面向旅游内容、目的地运营与研究团队，将站内知识与开放网络实时信息结合，通过 AI Research Agent 完成目的地研究、游客反馈洞察、内容选题与持续情报监控。
 
-<div align="center">
-<a href="https://discord.gg/ejRNvftDp9">
-<img src="https://img.shields.io/discord/1359368468260192417" alt="Discord">
-</a>
-<a href="https://www.reddit.com/r/SurfSense/">
-<img src="https://img.shields.io/reddit/subreddit-subscribers/SurfSense?style=social" alt="Reddit">
-</a>
-</div>
+项目基于开源项目 [SurfSense](https://github.com/MODSetter/SurfSense) 进行二次开发。TripInsight 保留其成熟的知识库、Agent、连接器、自动化与成果生成能力，并围绕旅游行业研究场景重新设计产品定位、交互与业务能力。
 
-<div align="center">
+## 为什么做 TripInsight
 
-[English](README.md) | [Español](README.es.md) | [Português](README.pt-BR.md) | [हिन्दी](README.hi.md) | [简体中文](README.zh-CN.md)
+旅游信息天然具有几个特点：
 
-</div>
-<div align="center">
-<a href="https://trendshift.io/repositories/13606" target="_blank"><img src="https://trendshift.io/api/badge/repositories/13606" alt="MODSetter%2FSurfSense | Trendshift" style="width: 250px; height: 55px;" width="250" height="55"/></a>
-</div>
+- **来源分散**：官方站点、地图评论、视频、社区、搜索结果与历史攻略同时存在。
+- **变化频繁**：开放时间、预约政策、交通、价格、活动与热点持续变化。
+- **验证成本高**：研究人员需要反复搜索、交叉核验并记录来源。
+- **内容生产依赖研究**：目的地运营与内容团队需要把原始信息进一步转化为洞察、选题和 Brief。
 
-# SurfSense: The Open-Source NotebookLM Alternative for Open Web Research
+TripInsight 的目标不是再做一个“AI 行程规划助手”，而是建立一个面向旅游行业研究工作的 AI Workspace。
 
-SurfSense is the **open-source NotebookLM alternative for AI agents**, an open web research platform with live data connectors. Your agents research the live web with structured data from **Reddit, YouTube, Instagram, TikTok, Amazon, Walmart, Google Maps, Google Search, Indeed, and any page on the open web**, through one **REST API** or **MCP server**. Scheduled and event-triggered agents turn what they find into briefs and alerts, and a built-in knowledge base keeps every finding searchable with citations.
+## 核心场景
 
-> [!NOTE]
-> **📢 A note for our NotebookLM-alternative users**
->
-> For the past couple of months we built SurfSense as the best general research agent for your own knowledge, and that chapter earned us a community we are genuinely proud of. Agentic tools like Claude, OpenCode, Hermes, and OpenClaw have now proven that agents are the future, and reasoning over a static index is becoming something every capable agent does out of the box. What agents still lack is **live data from the places where answers actually live, and the workflows around it**. That is where we are pointing all of our energy: giving agents the primitives to research the open web.
->
-> **Nothing you rely on is going away.** Your knowledge base, chat with citations, reports, podcasts, presentations, automations, and collaborative chats all keep working, and self-hosting stays free and open source. Read the full announcement on [our changelog](https://www.surfsense.com/changelog).
+### 1. 目的地深度研究
 
-## Table of contents
+把内部知识、官方资料与开放网络数据放进同一次研究任务，生成带引用的 Destination Research Brief。
 
-- [Why agents need SurfSense](#why-agents-need-surfsense)
-- [Live data connectors](#live-data-connectors)
-- [Quick start](#quick-start)
-- [Everything else in the box](#everything-else-in-the-box)
-- [How SurfSense compares](#how-surfsense-compares)
-- [Roadmap](#roadmap)
-- [Contribute](#contribute)
+示例：
 
-## Why agents need SurfSense
+> 调研东京秋季情侣旅行市场，分析近期热门区域、游客关注点、消费变化和内容机会。
 
-Ask any capable agent "what is Reddit saying about this product since launch?" or "what do the reviews of these ten places actually complain about?" and it has nowhere trustworthy to look. Official platform APIs are rate-limited, priced for enterprises, or missing entirely; scraping plumbing is brittle; and driving a browser with an LLM burns minutes and tokens per page. SurfSense gives agents the primitives instead:
+### 2. 游客反馈洞察
 
-- **One typed surface for wherever the data lives.** Every connector is a REST endpoint returning structured JSON — posts, comments, transcripts, reviews, SERPs, pages. No rate-limit roulette, no HTML parsing, no browser loop.
-- **An MCP server** that exposes every connector as a native tool (`surfsense_reddit_scrape`, `surfsense_google_search`, and more) to Claude, Cursor, or any agent framework.
-- **An agent harness**, not just raw data: retries, structured output, and credit metering are built in, so agents go from a question to a cited brief without you building the plumbing.
-- **Open source and self-hostable**, so your research stays on your own infrastructure.
+聚合地图评论、社区讨论、视频内容与历史资料，识别游客高频诉求、核心槽点、正向反馈与趋势变化。
 
-## Live data connectors
+示例：
 
-| Connector | What your agents get | Learn more |
-|---|---|---|
-| **Reddit** | Posts, comments, and subreddit streams without the official API's rate limits | [Reddit Scraper API](https://www.surfsense.com/reddit) |
-| **YouTube** | Videos, transcripts, and comment threads at scale | [YouTube Scraper API](https://www.surfsense.com/youtube) |
-| **Instagram** | Public profiles, posts, and reels without the Graph API | [Instagram Scraper API](https://www.surfsense.com/instagram) |
-| **TikTok** | Videos, comments, hashtags, and profiles without Research API approval | [TikTok Scraper API](https://www.surfsense.com/tiktok) |
-| **Google Maps** | Places, ratings, and reviews for local business research | [Google Maps Scraper API](https://www.surfsense.com/google-maps) |
-| **Google Search** | Live SERPs for search research and monitoring | [Google Search API](https://www.surfsense.com/google-search) |
-| **Indeed** | Public job postings with salaries and full descriptions, by search or company | [Indeed Scraper API](https://www.surfsense.com/indeed) |
-| **Amazon** | Public product data: prices, ratings, offers, sellers, and best-seller ranks | [Amazon Product API](https://www.surfsense.com/amazon) |
-| **Walmart** | Public product data plus the full review history: prices, ratings, sellers, and variants | [Walmart Product & Review API](https://www.surfsense.com/walmart) |
-| **Web Crawl** | Any page on the open web as clean, structured content | [Web Crawling API](https://www.surfsense.com/web-crawl) |
-| **External MCP Connectors** | Bring any MCP server to your agents, with one-click OAuth for Notion, Slack, Jira, and more | [External MCP Connectors](https://www.surfsense.com/external-mcp-connectors) |
+> 分析最近三个月大阪热门景点的主要投诉与正向反馈，并给出内容选题建议。
 
-The connector catalog is growing beyond social platforms and search; every new source lands as a typed endpoint on the same API and MCP server.
+### 3. 目的地情报监控
 
-Billing is pay as you go: connectors bill per item actually returned, crawls per page successfully fetched, and failed calls are never billed. Self-hosted installs run with billing off. See [pricing](https://www.surfsense.com/pricing).
+持续监控开放时间、预约政策、交通、价格、活动与热门趋势，让重要变化进入研究工作台并形成可追溯 Brief。
 
-## Quick start
+示例：
 
-### Call a connector from code
+> 每周跟踪京都目的地信息变化，生成变化摘要并保留全部来源。
 
-Every connector is a REST endpoint you can call from any language with your SurfSense API key:
+## 产品原则
 
-```bash
-curl -X POST "$SURFSENSE_API_URL/workspaces/$WORKSPACE_ID/scrapers/reddit/scrape" \
-  -H "Authorization: Bearer $SURFSENSE_API_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "search_queries": ["your brand"],
-    "community": "SaaS",
-    "sort": "top",
-    "time_filter": "week"
-  }'
-```
+TripInsight 当前围绕四个关键词建设：
 
-Each [connector page](https://www.surfsense.com/connectors) has copy-paste examples in Python, JavaScript, Go, PHP, Ruby, Java, and C#.
+**Research · Knowledge · Insight · Automation**
 
-### Give the tools to your agents over MCP
+- **Research**：Agent 负责理解问题、拆解任务、连续检索与综合分析。
+- **Knowledge**：沉淀内部资料、历史攻略、目的地文档与研究成果。
+- **Insight**：从原始信息中形成可验证、可引用、可复用的研究结论。
+- **Automation**：把重复的目的地研究与情报跟踪变成持续运行的工作流。
 
-Add the SurfSense MCP server to Claude, Cursor, or your own agent framework:
+## 当前技术基础
 
-```json
-{
-  "mcpServers": {
-    "surfsense": {
-      "url": "https://mcp.surfsense.com/mcp",
-      "headers": { "Authorization": "Bearer ${SURFSENSE_API_KEY}" }
-    }
-  }
-}
-```
+### Backend
 
-Your agent can now call every connector as a native tool. See the [SurfSense MCP server](https://www.surfsense.com/mcp-server) page for the full tool list, or run the server locally from [`surfsense_mcp`](./surfsense_mcp).
+- Python 3.12+
+- FastAPI
+- PostgreSQL / pgvector
+- SQLAlchemy / Alembic
+- Redis
+- Celery
 
-### Use the cloud
+### AI / Agent
 
-Go to [surfsense.com](https://www.surfsense.com), log in, and ask the agent for live web data in plain English. New accounts start with $5 of free credit and no subscription.
+- LangGraph / LangChain
+- Deep Agents
+- LiteLLM
+- Hybrid Search / Rerank
+- MCP / Tool Calling
+- PostgreSQL Checkpoint
 
-### Self-host for free
+### Frontend
 
-Run the entire platform, connectors, agents, automations, and the MCP server on your own infrastructure. Self-hosted installs ship with billing off, so scraping, crawling, and agent runs are limited only by your hardware and the model keys you bring.
+- Next.js
+- React
+- TypeScript
+- Tailwind CSS
 
-**Prerequisites:** [Docker Desktop](https://www.docker.com/products/docker-desktop/) must be installed and running.
+### Observability
 
-For Linux/macOS:
+- OpenTelemetry
+- PostHog
 
-```bash
-curl -fsSL https://raw.githubusercontent.com/MODSetter/SurfSense/main/docker/scripts/install.sh | bash
-```
+## 产品边界
 
-For Windows:
+第一阶段明确 **不做**：
 
-```bash
-irm https://raw.githubusercontent.com/MODSetter/SurfSense/main/docker/scripts/install.ps1 | iex
-```
+- C 端旅游行程规划
+- 机票 / 酒店预订
+- OTA 交易系统
+- 地图路线规划
+- CRM / 完整 CMS
+- 通用 Agent Platform
+- 为技术展示而引入额外的 Durable Runtime
 
-The install script sets up [Watchtower](https://github.com/nicholas-fedor/watchtower) automatically for daily auto-updates. To skip it, add the `--no-watchtower` flag. For Docker Compose, manual installation, and other deployment options, see the [docs](https://www.surfsense.com/docs/).
+现有 Celery + Redis + PostgreSQL Automation 能力优先满足当前自动化需求。
 
-## Everything else in the box
+## 当前改造阶段
 
-The research workspace that made SurfSense the leading open-source NotebookLM alternative is still here, and everything your agents gather lands in it.
+### Phase 0 — 产品方向冻结
 
-**Knowledge base**
+- [x] 产品定位：AI 旅游研究与目的地情报工作台
+- [x] 目标用户：旅游内容、目的地运营与研究团队
+- [x] 核心场景：目的地研究 / 游客洞察 / 情报监控
+- [x] 产品边界与 Won't-have
 
-- Upload PDFs, Office docs, images, and audio, or sync **Google Drive, OneDrive, and Dropbox**. 50+ file formats supported.
-- Hybrid semantic and full-text search with cited, Perplexity-style answers.
-- AI file sorting auto-organizes documents by source, date, and topic.
+### Phase 1 — TripInsight 产品化
 
-<p align="center"><img src="surfsense_web/public/homepage/hero_tutorial/BQnaGif_compressed.gif" alt="Chat With Your PDFs and Docs" /></p>
+- [x] 独立 TripInsight 首页与品牌定位
+- [x] 工作台信息架构调整
+- [x] Research 场景模板
+- [x] 旅游业务示例与端到端 PDF Research Report Demo
+- [x] 核心 Thread、知识库、数据源、报告与自动化文案统一
 
-**Deliverable studio**
+### Phase 2 — 旅游 Research Agent
 
-- Downloadable AI artifacts for reports, resumes, documents, spreadsheets, and presentations.
-- Two-host AI podcasts from any document or folder in under 20 seconds.
-- Editable slide decks, narrated video overviews, and AI image generation.
+- [x] 目的地研究任务模板
+- [x] 多源旅游数据研究协议
+- [x] 研究结果引用、时效性与证据冲突约束
+- [x] Traveler Insight / Destination Monitoring 输出结构
+- [x] “先研究、后生成报告”的两阶段交付协议
+- [ ] Research Eval / Citation Eval 数据集与基线
 
-<p align="center"><img src="surfsense_web/public/homepage/hero_tutorial/ReportGenGif_compressed.gif" alt="AI Report Generator" /></p>
+### Phase 3 — Destination Intelligence
 
-**Automations**
+- [ ] 目的地变化监控的产品化验证
+- [ ] Research Automation 场景模板与 Demo
+- [ ] Destination Brief 历史变化对比
+- [ ] Research Eval / Citation Eval 持续评估
 
-- Run full agent turns on a schedule or in response to events, described in plain English, with results written back to Notion, Slack, Linear, and Jira.
+详细产品定义见 [`docs/product.md`](./docs/product.md)。
 
-**Team collaboration**
+## Upstream & License
 
-- Real-time collaborative AI chats with comments and mentions.
-- RBAC with Owner, Admin, Editor, and Viewer roles.
+TripInsight is built on top of [MODSetter/SurfSense](https://github.com/MODSetter/SurfSense).
 
-<p align="center"><img src="surfsense_web/public/homepage/hero_realtime/RealTimeChatGif.gif" alt="Collaborative AI Chat" /></p>
+SurfSense 主体代码采用 Apache License 2.0；其 `surfsense_backend/app/proprietary/` 目录有独立许可声明。TripInsight 保留原项目相关版权与许可证文件，并在二次开发过程中避免将上游贡献误表述为原创实现。
 
-**Desktop app**
+## Status
 
-Native AI assistance in every application on your computer. Download from the [latest release](https://github.com/MODSetter/SurfSense/releases/latest).
-
-- **General Assist**: launch SurfSense from any app with a global shortcut.
-- **Quick Assist**: select text anywhere, then ask AI to explain, rewrite, or act on it.
-- **Screenshot Assist**: capture any region of your screen and ask AI about it.
-- **Watch Local Folder**: auto-sync a local folder to your knowledge base. Point it at your Obsidian vault to keep your notes searchable.
-
-<p align="center"><img src="surfsense_web/public/homepage/hero_tutorial/quick_assist.gif" alt="Quick Assist" /></p>
-
-**No vendor lock-in**
-
-- 100+ LLMs via the OpenAI spec and LiteLLM, including GPT-5.5, Claude Sonnet 5, and Gemini 3.1 Pro.
-- 6,000+ embedding models and all major rerankers.
-- Full local and private LLM support (vLLM, Ollama), so your data stays yours.
-
-## Video Agent Sample
-
-https://github.com/user-attachments/assets/012a7ffa-6f76-4f06-9dda-7632b470057a
-
-## Podcast Agent Sample
-
-https://github.com/user-attachments/assets/a0a16566-6967-4374-ac51-9b3e07fbecd7
-
-## How to collaborate in real time (Beta)
-
-1. Go to the Manage Members page and create an invite.
-
-   <p align="center"><img src="https://github.com/user-attachments/assets/40ed7683-5aa6-48a0-a3df-00575528c392" alt="Invite Members" /></p>
-
-2. A teammate joins and that workspace becomes shared.
-
-   <p align="center"><img src="https://github.com/user-attachments/assets/ea4e1057-4d2b-4fd2-9ca0-cd19286a285e" alt="Invite Join Flow" /></p>
-
-3. Make a chat shared and work in it together in real time, with comments to tag teammates.
-
-   <p align="center"><img src="surfsense_web/public/homepage/hero_realtime/RealTimeCommentsFlow.gif" alt="Realtime Comments" /></p>
-
-## How SurfSense compares
-
-SurfSense is the only open-source product that combines a NotebookLM-style research workspace for people with live-data primitives for agents. Here is how that stacks up against each class of tool.
-
-**vs browser agents (Browserbase, Browser Use).** Browser agents drive a real browser with an LLM in the loop — the right tool when a task needs clicking, logging in, or filling forms. But most research is read-only retrieval, and for retrieval the LLM-in-a-browser loop costs you minutes and thousands of tokens per page. A SurfSense connector call is one HTTP request: seconds, deterministic, and zero tokens spent deciding where to click.
-
-**vs scraping APIs (Firecrawl).** Scraping APIs are great at turning a generic page into markdown, but a markdown blob still leaves your agent parsing structure out of prose, and they degrade on bot-protected platforms like Reddit, TikTok, and Instagram. SurfSense connectors return platform-native structured items — posts, comments, transcripts, reviews — and bill only for items actually returned; failed calls are never billed.
-
-**vs search APIs (Exa, Tavily, Parallel).** Search APIs answer from a web index, which is the right tool for "find me pages about X." They cannot pull a Reddit thread's comments, TikTok reactions, YouTube transcripts, or Google Maps reviews — the places where the answer often actually lives.
-
-**vs scraper marketplaces (Apify).** Marketplaces give you thousands of community actors, each with its own schema, quality, and pricing. SurfSense is one typed API and one MCP server with an agent harness and a research workspace behind it, and it is open source.
-
-### SurfSense vs Google NotebookLM
-
-Still comparing us as a NotebookLM alternative? Here is the honest breakdown.
-
-| Feature | Google NotebookLM | SurfSense |
-|---------|-------------------|-----------|
-| **Live web data for agents** | No | Reddit, YouTube, Instagram, TikTok, Amazon, Walmart, Google Maps, Google Search, Indeed, and web crawl connectors via REST API and MCP |
-| **MCP server** | No | Every connector exposed as a native agent tool, plus bring-your-own MCP servers with one-click OAuth apps |
-| **Sources per Notebook** | 50 (Free) to 600 (Ultra, $249.99/mo) | Unlimited |
-| **Number of Notebooks** | 100 (Free) to 500 (paid tiers) | Unlimited |
-| **Source Size Limit** | 500,000 words / 200MB per source | No limit |
-| **Pricing** | Free tier; Pro $19.99/mo, Ultra $249.99/mo | Free and open source to self-host; cloud is pay as you go with $5 free credit |
-| **LLM Support** | Google Gemini only | 100+ LLMs via OpenAI spec & LiteLLM |
-| **Embedding Models** | Google only | 6,000+ embedding models, all major rerankers |
-| **Local / Private LLMs** | Not available | Full support (vLLM, Ollama), your data stays yours |
-| **Self Hostable** | No | Yes, Docker one-liner or full Docker Compose |
-| **Open Source** | No | Yes |
-| **Knowledge Base Sources** | Google Drive, YouTube, websites | File uploads, Google Drive, OneDrive, Dropbox, local folder sync, and crawled pages |
-| **File Format Support** | PDFs, Docs, Slides, Sheets, CSV, Word, EPUB, images, web URLs, YouTube | 50+ formats: documents, images, videos via LlamaCloud, Unstructured, or Docling (local) |
-| **Search** | Semantic search | Hybrid semantic + full-text with hierarchical indices & reciprocal rank fusion |
-| **Cited Answers** | Yes | Yes, Perplexity-style cited responses |
-| **Agentic Architecture** | No | Yes, powered by [LangChain Deep Agents](https://docs.langchain.com/oss/python/deepagents/overview) with planning, subagents, and file system access |
-| **AI Automations & Agents** | No | Scheduled workflows, event triggers, and chat-built no-code automations with write-back to Notion, Slack, Linear & Jira |
-| **Real-Time Multiplayer** | Shared notebooks with Viewer/Editor roles (no real-time chat) | RBAC with Owner / Admin / Editor / Viewer roles, real-time chat & comment threads |
-| **Video Generation** | Cinematic Video Overviews via Veo 3 (Ultra only) | Available (NotebookLM is better here, actively improving) |
-| **Presentation Generation** | Better looking slides but not editable | Editable, slide-based presentations |
-| **Podcast Generation** | Audio Overviews with customizable hosts and languages | Available with multiple TTS providers (NotebookLM is better here, actively improving) |
-| **Desktop App** | No | Native app with General Assist, Quick Assist, Screenshot Assist, and local folder sync |
-
-## Feature requests and future
-
-**SurfSense is actively being developed.** While it's not yet production-ready, you can help us speed up the process.
-
-Join the [SurfSense Discord](https://discord.gg/ejRNvftDp9) and help shape the future of SurfSense!
-
-## Roadmap
-
-Stay up to date with our development progress and upcoming features. Check out our public roadmap and contribute your ideas or feedback:
-
-**Roadmap Discussion:** [SurfSense 2026 Roadmap](https://github.com/MODSetter/SurfSense/discussions/565)
-
-**Kanban Board:** [SurfSense Project Board](https://github.com/users/MODSetter/projects/3)
-
-## Contribute
-
-All contributions welcome, from stars and bug reports to backend improvements. See [CONTRIBUTING.md](CONTRIBUTING.md) to get started.
-
-Thanks to all our Surfers:
-
-<a href="https://github.com/MODSetter/SurfSense/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=MODSetter/SurfSense" />
-</a>
-
-## Star History
-
-<a href="https://www.star-history.com/#MODSetter/SurfSense&Date">
- <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=MODSetter/SurfSense&type=Date&theme=dark" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=MODSetter/SurfSense&type=Date" />
-   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=MODSetter/SurfSense&type=Date" />
- </picture>
-</a>
-
----
----
-<p align="center">
-    <img 
-      src="https://github.com/user-attachments/assets/329c9bc2-6005-4aed-a629-700b5ae296b4" 
-      alt="Catalyst Project" 
-      width="200"
-    />
-</p>
-
----
----
+TripInsight 已完成第一阶段核心产品化与 Research Agent 策略改造，当前正在进行构建、格式与单元测试验证。
