@@ -1,74 +1,84 @@
 /**
- * Curated example chat prompts shown on the empty new-chat screen.
+ * Curated TripInsight research prompts shown on the empty new-research screen.
  *
- * These mirror the homepage hero's "use case" concept but with runnable chat
- * queries, grouped into a few broad categories. Bracketed slots like `[topic]`
- * are intentional: clicking a prompt prefills the composer so the user can fill
- * them in before sending.
- *
- * This is a module-scope constant so it is created once, not per render.
+ * The underlying runtime is still the upstream chat/thread model. These prompts
+ * deliberately change only the product-facing research entry so we can keep the
+ * Agent runtime and persistence model stable while specializing the experience.
  */
 
 export interface ChatExampleCategory {
-	/** Stable id used as the Tabs value */
+	/** Stable id used by the category picker. */
 	id: string;
-	/** Short, human-readable tab label */
+	/** Short, human-readable category label. */
 	label: string;
-	/** Runnable example queries for this category */
+	/** Runnable example research queries. */
 	prompts: string[];
 }
 
-export const CHAT_EXAMPLE_CATEGORIES: ChatExampleCategory[] = [
+const ZH_RESEARCH_CATEGORIES: ChatExampleCategory[] = [
 	{
-		id: "research",
-		label: "Research the Web",
+		id: "destination",
+		label: "目的地研究",
 		prompts: [
-			"Research [topic] across the live web and give me a cited brief",
-			"Map who ranks for [keyword], crawl each result, and compare their claims in one table",
-			"Pull the Google Maps reviews for [business] and summarize the top complaints",
-			"Which queries about [topic] trigger an AI Overview, and who gets cited?",
+			"调研东京秋季情侣旅行市场，分析近期热门区域、游客关注点、消费变化和内容机会，并为关键结论附上来源。",
+			"研究京都红叶季的最新开放信息、交通变化、热门景点与游客反馈，生成一份带引用的目的地 Brief。",
+			"对比曼谷、清迈和普吉岛近期游客关注点与消费体验，给出适合内容团队的选题方向。",
 		],
 	},
 	{
-		id: "listen",
-		label: "Community Listening",
+		id: "traveler-insights",
+		label: "游客洞察",
 		prompts: [
-			"Find 20 Reddit posts where people ask for an alternative to [product]",
-			"Analyze the comments on [channel]'s last 10 videos and cluster the complaints",
-			"What is Reddit saying about [topic] this week?",
-			"Pull the top TikTok videos for [hashtag] and summarize the trend",
-			"Summarize the top complaints in the Walmart reviews for [product]",
+			"分析最近三个月大阪热门景点的游客反馈，归纳主要投诉、正向体验和正在上升的关注点。",
+			"研究东京热门商圈近期评论，比较排队、服务、价格和夜间体验相关反馈，并标注证据来源。",
+			"汇总游客对京都公共交通和热门景点拥挤问题的讨论，提炼高频痛点和内容机会。",
 		],
 	},
 	{
 		id: "monitor",
-		label: "Monitor Competitors",
+		label: "情报监控",
 		prompts: [
-			"Extract every plan, price, and limit from [competitor]'s pricing page",
-			"Track the Amazon price, rating, and offers for [product] and its top rivals",
-			"Crawl [competitor]'s changelog and brief me on what they shipped this month",
-			"Measure the reaction to [competitor]'s launch across search, Reddit, and YouTube",
-			"Find the top-rated [category] businesses in [city], crawl their sites, and build a lead list with contacts",
-		],
-	},
-	{
-		id: "automate",
-		label: "Automate",
-		prompts: [
-			"Watch [url] daily and alert me on any change",
-			"Track our brand mentions on Reddit daily and tag buying intent",
-			"Send me a weekly report on [keyword] rankings and AI Overview citations",
-			"Every Monday, crawl [site]'s changelog and send me a brief",
-		],
-	},
-	{
-		id: "tools",
-		label: "Across your tools",
-		prompts: [
-			"Search across my Notion, Slack, Google Drive and Gmail for [topic]",
-			"Post this research summary to my Notion workspace",
-			"Send these findings to our team Slack channel",
-			"Create a Jira ticket from this bug report",
+			"检查京都近期景点开放时间、预约政策、交通和活动是否有重要变化，并生成变化摘要。",
+			"跟踪东京核心景区近期票价、预约规则和临时闭馆信息，指出与历史资料不一致的内容。",
+			"研究日本入境旅行近期值得内容团队关注的新政策、热门趋势和游客讨论变化，并给出来源。",
 		],
 	},
 ];
+
+const EN_RESEARCH_CATEGORIES: ChatExampleCategory[] = [
+	{
+		id: "destination",
+		label: "Destination Research",
+		prompts: [
+			"Research Tokyo's autumn couples travel market, including trending neighborhoods, traveler concerns, spending shifts, and content opportunities. Cite the key evidence.",
+			"Research Kyoto's latest autumn foliage season updates, transport changes, popular attractions, and traveler feedback, then create a cited destination brief.",
+			"Compare current traveler interests and spending experiences across Bangkok, Chiang Mai, and Phuket, then suggest content opportunities for a travel team.",
+		],
+	},
+	{
+		id: "traveler-insights",
+		label: "Traveler Insights",
+		prompts: [
+			"Analyze traveler feedback for popular Osaka attractions from the last three months and summarize top complaints, positive experiences, and rising concerns.",
+			"Research recent reviews of Tokyo's major shopping districts and compare feedback about queues, service, price, and nightlife, with sources.",
+			"Summarize traveler discussions about Kyoto public transport and attraction crowding, then extract recurring pain points and content opportunities.",
+		],
+	},
+	{
+		id: "monitor",
+		label: "Destination Monitoring",
+		prompts: [
+			"Check whether Kyoto attraction hours, reservation policies, transport, or major events changed recently and produce a sourced change brief.",
+			"Track recent ticket price, reservation-rule, and temporary-closure changes for major Tokyo attractions and flag conflicts with existing knowledge.",
+			"Research recent Japan inbound-travel policy changes, emerging trends, and traveler discussions that a travel content team should know about, with sources.",
+		],
+	},
+];
+
+export function getChatExampleCategories(locale: string): ChatExampleCategory[] {
+	return locale === "zh" ? ZH_RESEARCH_CATEGORIES : EN_RESEARCH_CATEGORIES;
+}
+
+// Backward-compatible export for any upstream code that still imports the old
+// constant directly. Product UI should prefer getChatExampleCategories(locale).
+export const CHAT_EXAMPLE_CATEGORIES = EN_RESEARCH_CATEGORIES;
