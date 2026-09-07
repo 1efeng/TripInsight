@@ -11,6 +11,7 @@ test("Chinese primary navigation uses TripInsight research vocabulary", () => {
 	assert.equal(getProductLabel("Connectors", "zh"), "数据源");
 	assert.equal(getProductLabel("Artifacts", "zh"), "研究报告");
 	assert.equal(getProductLabel("Automations", "zh"), "自动化");
+	assert.equal(getProductLabel("Playground", "zh"), "调试台");
 });
 
 test("English navigation remains usable after the Chinese-first fork", () => {
@@ -18,10 +19,11 @@ test("English navigation remains usable after the Chinese-first fork", () => {
 	assert.equal(getProductLabel("Documents", "en"), "Knowledge Base");
 	assert.equal(getProductLabel("Connectors", "en"), "Sources");
 	assert.equal(getProductLabel("Artifacts", "en"), "Research Reports");
+	assert.equal(getProductLabel("Playground", "en"), "Playground");
 });
 
-test("developer playground is hidden from the primary product navigation", () => {
-	assert.equal(isHiddenPrimaryProductLabel("Playground"), true);
+test("developer playground remains available in primary product navigation", () => {
+	assert.equal(isHiddenPrimaryProductLabel("Playground"), false);
 	assert.equal(isHiddenPrimaryProductLabel("Automations"), false);
 });
 
@@ -78,11 +80,11 @@ test("English research entry mirrors the same scenario structure", () => {
 	);
 });
 
-test("research composer header keeps the primary surface focused on research", () => {
+test("research composer header exposes both chat and image model controls", () => {
 	const source = readFileSync("components/new-chat/chat-header.tsx", "utf8");
 
 	assert.match(source, /ModelSelector/);
-	assert.doesNotMatch(source, /ImageModelSelector/);
+	assert.match(source, /ImageModelSelector/);
 });
 
 test("Chinese research composer exposes localized context and model controls", () => {
