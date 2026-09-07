@@ -97,6 +97,7 @@ import {
 	getToolIcon,
 } from "@/contracts/enums/toolIcons";
 import type { SearchSourceConnector } from "@/contracts/types/connector.types";
+import { useLocaleContext } from "@/contexts/LocaleContext";
 import { useBatchCommentsPreload } from "@/hooks/use-comments";
 import { useCommentsSync } from "@/hooks/use-comments-sync";
 import { useMediaQuery } from "@/hooks/use-media-query";
@@ -115,9 +116,6 @@ import {
 	promoteRecentMention,
 } from "../new-chat/document-mention-picker";
 import { ThreadMessagesSkeletonBody } from "./thread-messages-skeleton";
-
-const COMPOSER_PLACEHOLDER =
-	"Research the live web, scrape platforms, automate briefs. Use / for prompts, @ for docs";
 
 type ComposerSuggestionAnchorPoint = {
 	left: number;
@@ -192,6 +190,7 @@ const ThreadContent: FC<ThreadProps> = ({ hasActiveThread = false, isLoadingMess
 };
 
 const PremiumQuotaPinnedAlert: FC = () => {
+	const { locale } = useLocaleContext();
 	const currentThreadState = useAtomValue(currentThreadAtom);
 	const alertsByThread = useAtomValue(premiumAlertByThreadAtom);
 	const clearPremiumAlertForThread = useSetAtom(clearPremiumAlertForThreadAtom);
@@ -214,7 +213,7 @@ const PremiumQuotaPinnedAlert: FC = () => {
 					variant="ghost"
 					size="icon"
 					className="size-6 text-muted-foreground hover:bg-transparent hover:text-accent-foreground"
-					aria-label="Dismiss premium quota alert"
+					aria-label={locale === "zh" ? "关闭额度提示" : "Dismiss premium quota alert"}
 					onClick={() => clearPremiumAlertForThread(currentThreadId)}
 				>
 					<X className="size-4" />
@@ -224,44 +223,9 @@ const PremiumQuotaPinnedAlert: FC = () => {
 	);
 };
 
-const getTimeBasedGreeting = (user?: { display_name?: string | null; email?: string }): string => {
-	const hour = new Date().getHours();
-
-	let firstName: string | null = null;
-	if (user?.display_name?.trim()) {
-		const nameParts = user.display_name.trim().split(/\s+/);
-		firstName = nameParts[0].charAt(0).toUpperCase() + nameParts[0].slice(1).toLowerCase();
-	} else if (user?.email) {
-		firstName =
-			user.email.split("@")[0].split(".")[0].charAt(0).toUpperCase() +
-			user.email.split("@")[0].split(".")[0].slice(1);
-	}
-
-	const morningGreetings = ["Good morning", "Fresh start today", "Morning", "Hey there"];
-	const afternoonGreetings = ["Good afternoon", "Afternoon", "Hey there", "Hi there"];
-	const eveningGreetings = ["Good evening", "Evening", "Hey there", "Hi there"];
-	const nightGreetings = ["Good night", "Evening", "Hey there", "Winding down"];
-	const lateNightGreetings = ["Still up", "Night owl mode", "Up past bedtime", "Hi there"];
-
-	let greeting: string;
-	if (hour < 5) {
-		greeting = lateNightGreetings[Math.floor(Math.random() * lateNightGreetings.length)];
-	} else if (hour < 12) {
-		greeting = morningGreetings[Math.floor(Math.random() * morningGreetings.length)];
-	} else if (hour < 18) {
-		greeting = afternoonGreetings[Math.floor(Math.random() * afternoonGreetings.length)];
-	} else if (hour < 22) {
-		greeting = eveningGreetings[Math.floor(Math.random() * eveningGreetings.length)];
-	} else {
-		greeting = nightGreetings[Math.floor(Math.random() * nightGreetings.length)];
-	}
-
-	return firstName ? `${greeting}, ${firstName}!` : `${greeting}!`;
-};
-
 const ThreadWelcome: FC = () => {
-	const { data: user } = useAtomValue(currentUserAtom);
-	const greeting = useMemo(() => getTimeBasedGreeting(user), [user]);
+	const { locale } = useLocaleContext();
+	const greeting = locale === "zh" ? "今天想研究什么？" : "What would you like to research?";
 
 	return (
 		<div className="aui-thread-welcome-root flex min-h-0 flex-1">
@@ -280,6 +244,7 @@ const ThreadWelcome: FC = () => {
 };
 
 const PendingScreenImageStrip: FC = () => {
+	const { locale } = useLocaleContext();
 	const [urls, setUrls] = useAtom(pendingUserImageDataUrlsAtom);
 	if (urls.length === 0) return null;
 	return (
@@ -291,7 +256,7 @@ const PendingScreenImageStrip: FC = () => {
 				>
 					<Image
 						src={url}
-						alt="Pending screenshot preview"
+						alt={locale === "zh" ? "待发送的截图预览" : "Pending screenshot preview"}
 						fill
 						sizes="56px"
 						className="object-cover"
@@ -304,7 +269,7 @@ const PendingScreenImageStrip: FC = () => {
 						variant="ghost"
 						size="icon"
 						className="absolute right-0.5 top-0.5 size-5 rounded-full bg-background/90 text-muted-foreground shadow-sm transition-opacity hover:bg-background/90 hover:text-accent-foreground sm:opacity-0 sm:group-hover:opacity-100"
-						aria-label="Remove screenshot"
+						aria-label={locale === "zh" ? "移除截图" : "Remove screenshot"}
 					>
 						<X className="size-3" />
 					</Button>
@@ -315,6 +280,7 @@ const PendingScreenImageStrip: FC = () => {
 };
 
 const ClipboardChip: FC<{ text: string; onDismiss: () => void }> = ({ text, onDismiss }) => {
+	const { locale } = useLocaleContext();
 	const [expanded, setExpanded] = useState(false);
 	const isLong = text.length > 120;
 	const preview = isLong ? `${text.slice(0, 120)}…` : text;
@@ -323,7 +289,9 @@ const ClipboardChip: FC<{ text: string; onDismiss: () => void }> = ({ text, onDi
 		<div className="mx-3 mt-2 rounded-lg border border-border/40 bg-background/60">
 			<div className="flex items-center gap-2 px-3 py-2">
 				<Clipboard className="size-4 shrink-0 text-muted-foreground" />
-				<span className="text-xs font-medium text-muted-foreground">From clipboard</span>
+				<span className="text-xs font-medium text-muted-foreground">
+					{locale === "zh" ? "来自剪贴板" : "From clipboard"}
+				</span>
 				<div className="flex-1" />
 				{isLong && (
 					<Button
@@ -374,7 +342,9 @@ const ChatUnavailableNotice: FC<{ workspaceId: number; canConfigure: boolean }> 
 	workspaceId,
 	canConfigure,
 }) => {
+	const { locale } = useLocaleContext();
 	const router = useRouter();
+	const isChinese = locale === "zh";
 
 	return (
 		<div className="relative z-0 -mb-5 flex min-w-0 items-center gap-2 rounded-t-3xl bg-popover px-4 pt-2 pb-6 shadow-sm shadow-black/5 dark:shadow-black/10">
@@ -382,8 +352,12 @@ const ChatUnavailableNotice: FC<{ workspaceId: number; canConfigure: boolean }> 
 				<AlertCircle className="size-4 shrink-0" />
 				<span className="truncate">
 					{canConfigure
-						? "Connect a chat model to start chatting."
-						: "No model available. Ask a workspace admin to connect a chat model."}
+						? isChinese
+							? "连接研究模型后即可开始研究。"
+							: "Connect a research model to start researching."
+						: isChinese
+							? "暂无可用研究模型，请联系研究空间管理员完成配置。"
+							: "No research model is available. Ask a workspace admin to configure one."}
 				</span>
 			</div>
 			<div className="min-w-0 flex-1" />
@@ -394,8 +368,8 @@ const ChatUnavailableNotice: FC<{ workspaceId: number; canConfigure: boolean }> 
 					className="h-6 shrink-0 cursor-pointer gap-2 rounded-md px-2.5 text-xs font-medium select-none"
 					onClick={() => router.push(`/dashboard/${workspaceId}/workspace-settings/models`)}
 				>
-					<span className="sm:hidden">Connect</span>
-					<span className="hidden sm:inline">Connect a model</span>
+					<span className="sm:hidden">{isChinese ? "连接" : "Connect"}</span>
+					<span className="hidden sm:inline">{isChinese ? "连接模型" : "Connect a model"}</span>
 				</Button>
 			) : null}
 		</div>
@@ -408,6 +382,7 @@ interface ComposerProps {
 }
 
 const Composer: FC<ComposerProps> = ({ isLoadingMessages = false, showExamplePrompts = false }) => {
+	const { locale } = useLocaleContext();
 	const [mentionedDocuments, setMentionedDocuments] = useAtom(mentionedDocumentsAtom);
 	const setSubmittedMentions = useSetAtom(submittedMentionsAtom);
 	const [showDocumentPopover, setShowDocumentPopover] = useState(false);
@@ -448,7 +423,10 @@ const Composer: FC<ComposerProps> = ({ isLoadingMessages = false, showExamplePro
 	const { data: chatSetupStatus } = useAtomValue(llmSetupStatusAtomFamily(workspaceId ?? 0));
 	const isChatUnavailable = !!chatSetupStatus && chatSetupStatus.status !== "ready";
 
-	const currentPlaceholder = COMPOSER_PLACEHOLDER;
+	const currentPlaceholder =
+		locale === "zh"
+			? "研究目的地、游客反馈或近期变化；输入 / 使用研究模板，输入 @ 引用资料"
+			: "Research destinations, traveler feedback, or recent changes. Use / for templates, @ for sources";
 
 	const { data: currentUser } = useAtomValue(currentUserAtom);
 	const { data: members } = useAtomValue(membersAtom);
@@ -958,6 +936,7 @@ const Composer: FC<ComposerProps> = ({ isLoadingMessages = false, showExamplePro
  * icons are display-only with a status tooltip.
  */
 const ConnectedScraperIcons: FC<{ workspaceId: number }> = ({ workspaceId }) => {
+	const { locale } = useLocaleContext();
 	const { data: capabilities } = useScraperCapabilities(workspaceId);
 
 	const platforms = useMemo<PlaygroundPlatform[]>(() => {
@@ -991,7 +970,9 @@ const ConnectedScraperIcons: FC<{ workspaceId: number }> = ({ workspaceId }) => 
 									</AvatarFallback>
 								</Avatar>
 							</TooltipTrigger>
-							<TooltipContent side="bottom">{platform.label} scraper available</TooltipContent>
+							<TooltipContent side="bottom">
+								{locale === "zh" ? `${platform.label} 数据源可用` : `${platform.label} source available`}
+							</TooltipContent>
 						</Tooltip>
 					);
 				})}
@@ -1022,6 +1003,8 @@ const ComposerAction: FC<ComposerActionProps> = ({
 	onChatModelSelected,
 	onSend,
 }) => {
+	const { locale } = useLocaleContext();
+	const isChinese = locale === "zh";
 	const mentionedDocuments = useAtomValue(mentionedDocumentsAtom);
 	const router = useRouter();
 	const openConnectors = useCallback(
@@ -1147,12 +1130,21 @@ const ComposerAction: FC<ComposerActionProps> = ({
 		isWorkspaceChatReady,
 	});
 	const sendTooltip = isLoadingMessages
-		? "Loading conversation..."
+		? isChinese
+			? "正在加载研究记录..."
+			: "Loading research..."
 		: isBlockedByOtherUser
-			? "Wait for AI to finish responding"
+			? isChinese
+				? "请等待 AI 完成本轮研究"
+				: "Wait for AI to finish this research"
 			: isComposerEmpty
-				? "Enter a message or add a screenshot to send"
-				: "Send message";
+				? isChinese
+					? "输入研究问题或添加截图"
+					: "Enter a research question or add a screenshot"
+				: isChinese
+					? "开始研究"
+					: "Start research";
+	const addContextLabel = isChinese ? "添加研究上下文" : "Add research context";
 
 	return (
 		<div className="aui-composer-action-wrapper relative mx-3 mb-3 flex items-center justify-between">
@@ -1164,7 +1156,7 @@ const ComposerAction: FC<ComposerActionProps> = ({
 								variant="ghost"
 								size="icon"
 								className="h-9 w-9 rounded-full p-0 font-semibold text-xs text-muted-foreground transition-colors dark:border-muted-foreground/15 hover:bg-foreground/10 hover:text-foreground"
-								aria-label="Upload files, manage tools and more"
+								aria-label={addContextLabel}
 								data-joyride="connector-icon"
 							>
 								<Plus className="size-5" />
@@ -1193,13 +1185,13 @@ const ComposerAction: FC<ComposerActionProps> = ({
 					>
 						<DropdownMenuTrigger asChild>
 							<TooltipIconButton
-								tooltip="Upload files, manage tools and more"
+								tooltip={addContextLabel}
 								side="bottom"
 								disableTooltip={toolsPopoverOpen}
 								variant="ghost"
 								size="icon"
 								className="h-9 w-9 rounded-full p-0 font-semibold text-xs text-muted-foreground transition-colors dark:border-muted-foreground/15 hover:bg-foreground/10 hover:text-foreground"
-								aria-label="Upload files, manage tools and more"
+								aria-label={addContextLabel}
 								data-joyride="connector-icon"
 							>
 								<Plus className="size-5" />
@@ -1214,17 +1206,17 @@ const ComposerAction: FC<ComposerActionProps> = ({
 						>
 							<DropdownMenuItem onSelect={() => openUploadDialog()}>
 								<Upload className="h-4 w-4" />
-								Upload Files
+								{isChinese ? "上传研究资料" : "Upload research materials"}
 							</DropdownMenuItem>
 							<DropdownMenuItem onSelect={() => void handleScreenCapture()}>
 								<Camera className="h-4 w-4" />
-								Take a screenshot
+								{isChinese ? "截取屏幕" : "Take a screenshot"}
 							</DropdownMenuItem>
 							{connectorRows.length > 0 ? (
 								<DropdownMenuSub>
 									<DropdownMenuSubTrigger>
 										<Unplug className="h-4 w-4" />
-										MCP Connectors
+										{isChinese ? "数据源" : "Sources"}
 									</DropdownMenuSubTrigger>
 									<DropdownMenuPortal>
 										<DropdownMenuSubContent
@@ -1244,7 +1236,7 @@ const ComposerAction: FC<ComposerActionProps> = ({
 													) : row.health === "failed" ? (
 														<TriangleAlert
 															className="h-3.5 w-3.5 shrink-0 text-destructive"
-															aria-label={row.errorMessage ?? "Indexing failed"}
+															aria-label={row.errorMessage ?? (isChinese ? "索引失败" : "Indexing failed")}
 														/>
 													) : row.accountCount > 1 ? (
 														<span className="shrink-0 text-xs text-muted-foreground">
@@ -1256,7 +1248,7 @@ const ComposerAction: FC<ComposerActionProps> = ({
 											<DropdownMenuSeparator />
 											<DropdownMenuItem onSelect={openConnectors} className="gap-2">
 												<LayoutGrid className="h-4 w-4" />
-												Manage connectors
+												{isChinese ? "管理数据源" : "Manage sources"}
 											</DropdownMenuItem>
 										</DropdownMenuSubContent>
 									</DropdownMenuPortal>
@@ -1264,7 +1256,7 @@ const ComposerAction: FC<ComposerActionProps> = ({
 							) : (
 								<DropdownMenuItem onSelect={openConnectors}>
 									<Unplug className="h-4 w-4" />
-									MCP Connectors
+									{isChinese ? "数据源" : "Sources"}
 								</DropdownMenuItem>
 							)}
 							<DropdownMenuSub
@@ -1276,7 +1268,7 @@ const ComposerAction: FC<ComposerActionProps> = ({
 							>
 								<DropdownMenuSubTrigger>
 									<Settings2 className="h-4 w-4" />
-									Manage Tools
+									{isChinese ? "研究工具" : "Research tools"}
 								</DropdownMenuSubTrigger>
 								<DropdownMenuPortal>
 									<DropdownMenuSubContent
@@ -1288,7 +1280,7 @@ const ComposerAction: FC<ComposerActionProps> = ({
 										{regularToolGroups.map((group) => (
 											<div key={group.label}>
 												<div className="px-2 pt-1.5 pb-0.5 text-xs text-muted-foreground font-semibold select-none">
-													{group.label}
+													{isChinese ? getToolGroupLabel(group.label) : group.label}
 												</div>
 												{group.tools.map((tool) => {
 													const isDisabled = disabledToolsSet.has(tool.name);
@@ -1323,7 +1315,7 @@ const ComposerAction: FC<ComposerActionProps> = ({
 										{connectorToolGroups.length > 0 && (
 											<div>
 												<div className="px-2 pt-1.5 pb-0.5 text-xs text-muted-foreground font-semibold select-none">
-													Connector Actions
+													{isChinese ? "数据源操作" : "Source actions"}
 												</div>
 												{connectorToolGroups.map((group) => {
 													const iconKey = group.connectorIcon ?? "";
@@ -1409,7 +1401,7 @@ const ComposerAction: FC<ComposerActionProps> = ({
 										{otherToolGroup && (
 											<div>
 												<div className="px-2 pt-1.5 pb-0.5 text-xs text-muted-foreground font-semibold select-none">
-													{otherToolGroup.label}
+													{isChinese ? "其他" : otherToolGroup.label}
 												</div>
 												{otherToolGroup.tools.map((tool) => {
 													const isDisabled = disabledToolsSet.has(tool.name);
@@ -1478,7 +1470,7 @@ const ComposerAction: FC<ComposerActionProps> = ({
 							"aui-composer-send size-9 shrink-0 rounded-full",
 							isSendDisabled && "cursor-not-allowed opacity-50"
 						)}
-						aria-label="Send message"
+						aria-label={isChinese ? "发送研究请求" : "Send research request"}
 						disabled={isSendDisabled}
 						onClick={onSend}
 					>
@@ -1493,7 +1485,7 @@ const ComposerAction: FC<ComposerActionProps> = ({
 							variant="default"
 							size="icon"
 							className="aui-composer-cancel size-9 shrink-0 rounded-full"
-							aria-label="Stop generating"
+							aria-label={isChinese ? "停止生成" : "Stop generating"}
 						>
 							<SquareIcon className="aui-composer-cancel-icon size-3.5 fill-current" />
 						</Button>
@@ -1507,6 +1499,13 @@ const ComposerAction: FC<ComposerActionProps> = ({
 /** Friendly tool name (delegates to ``getToolDisplayName``). */
 function formatToolName(name: string): string {
 	return getToolDisplayName(name);
+}
+
+function getToolGroupLabel(label: string): string {
+	if (label === "Research") return "研究";
+	if (label === "Generate") return "生成";
+	if (label === "Memory") return "记忆";
+	return label;
 }
 
 interface ToolGroup {
@@ -1616,6 +1615,9 @@ const TOOL_GROUPS: ToolGroup[] = [
 ];
 
 const EditComposer: FC = () => {
+	const { locale } = useLocaleContext();
+	const isChinese = locale === "zh";
+
 	return (
 		<MessagePrimitive.Root className="aui-edit-composer-wrapper mx-auto flex w-full max-w-(--thread-max-width) flex-col px-2 py-3">
 			<ComposerPrimitive.Root className="aui-edit-composer-root ml-auto flex w-full max-w-[85%] flex-col rounded-2xl bg-muted">
@@ -1626,11 +1628,11 @@ const EditComposer: FC = () => {
 				<div className="aui-edit-composer-footer mx-3 mb-3 flex items-center gap-2 self-end">
 					<ComposerPrimitive.Cancel asChild>
 						<Button variant="ghost" size="sm">
-							Cancel
+							{isChinese ? "取消" : "Cancel"}
 						</Button>
 					</ComposerPrimitive.Cancel>
 					<ComposerPrimitive.Send asChild>
-						<Button size="sm">Update</Button>
+						<Button size="sm">{isChinese ? "更新" : "Update"}</Button>
 					</ComposerPrimitive.Send>
 				</div>
 			</ComposerPrimitive.Root>
