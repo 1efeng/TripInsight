@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { Logo } from "@/components/Logo";
 import { useRuntimeConfig } from "@/components/providers/runtime-config";
 import { Button } from "@/components/ui/button";
+import { useLocaleContext } from "@/contexts/LocaleContext";
 import { getAuthErrorDetails, shouldRetry } from "@/lib/auth-errors";
 import { setRedirectPath } from "@/lib/auth-utils";
 import { AmbientBackground } from "./AmbientBackground";
@@ -17,6 +18,8 @@ import { LocalLoginForm } from "./LocalLoginForm";
 function LoginContent() {
 	const t = useTranslations("auth");
 	const tCommon = useTranslations("common");
+	const { locale } = useLocaleContext();
+	const isChinese = locale === "zh";
 	const router = useRouter();
 	const { authType } = useRuntimeConfig();
 	const [urlError, setUrlError] = useState<{ title: string; message: string } | null>(null);
@@ -46,7 +49,7 @@ function LoginContent() {
 		// Show logout confirmation
 		if (logout === "true") {
 			toast.success(tCommon("success"), {
-				description: "You have been securely logged out",
+				description: isChinese ? "你已安全退出登录" : "You have been securely logged out",
 				duration: 3000,
 			});
 		}
@@ -78,7 +81,7 @@ function LoginContent() {
 			// Add retry action if the error is retryable
 			if (shouldRetry(error)) {
 				toastOptions.action = {
-					label: "Retry",
+					label: isChinese ? "重试" : "Retry",
 					onClick: () => router.refresh(),
 				};
 			}
@@ -88,12 +91,12 @@ function LoginContent() {
 
 		// Show general messages
 		if (message && !error && !registered && !logout) {
-			toast.info("Notice", {
+			toast.info(isChinese ? "提示" : "Notice", {
 				description: decodeURIComponent(message),
 				duration: 4000,
 			});
 		}
-	}, [router, searchParams, t, tCommon]);
+	}, [router, searchParams, t, tCommon, isChinese]);
 
 	if (authType === "GOOGLE") {
 		return <GoogleLoginButton />;
@@ -102,11 +105,21 @@ function LoginContent() {
 	return (
 		<div className="relative w-full overflow-hidden">
 			<AmbientBackground />
-			<div className="mx-auto flex h-screen max-w-lg flex-col items-center justify-center">
-				<Logo priority className="h-16 w-16 md:h-32 md:w-32 rounded-md transition-all" />
-				<h1 className="mt-4 mb-6 text-xl font-bold text-neutral-800 dark:text-neutral-100 md:mt-8 md:mb-8 md:text-3xl lg:text-4xl transition-all">
-					{t("sign_in")}
-				</h1>
+			<div className="mx-auto flex h-screen max-w-lg flex-col items-center justify-center px-6 md:px-0">
+				<Logo priority className="h-16 w-16 md:h-24 md:w-24 rounded-md transition-all" />
+				<div className="mt-4 mb-6 text-center md:mt-6 md:mb-8">
+					<p className="text-xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-100 md:text-2xl">
+						TripInsight
+					</p>
+					<p className="mt-1.5 text-sm text-muted-foreground">
+						{isChinese
+							? "AI 旅游研究与目的地情报工作台"
+							: "AI Travel Research & Destination Intelligence Workspace"}
+					</p>
+					<h1 className="mt-5 text-xl font-bold text-neutral-800 dark:text-neutral-100 md:text-2xl transition-all">
+						{t("sign_in")}
+					</h1>
+				</div>
 
 				{/* URL Error Display */}
 				<AnimatePresence>
@@ -131,7 +144,7 @@ function LoginContent() {
 									strokeLinejoin="round"
 									className="flex-shrink-0 mt-0.5 text-red-500 dark:text-red-400"
 								>
-									<title>Error Icon</title>
+									<title>{isChinese ? "错误" : "Error Icon"}</title>
 									<circle cx="12" cy="12" r="10" />
 									<line x1="15" y1="9" x2="9" y2="15" />
 									<line x1="9" y1="9" x2="15" y2="15" />
@@ -146,7 +159,7 @@ function LoginContent() {
 									size="icon"
 									onClick={() => setUrlError(null)}
 									className="size-6 flex-shrink-0 text-red-500 hover:bg-transparent hover:text-red-700 dark:text-red-400 dark:hover:text-red-200"
-									aria-label="Dismiss error"
+									aria-label={isChinese ? "关闭错误提示" : "Dismiss error"}
 								>
 									<svg
 										xmlns="http://www.w3.org/2000/svg"
@@ -159,7 +172,7 @@ function LoginContent() {
 										strokeLinecap="round"
 										strokeLinejoin="round"
 									>
-										<title>Close</title>
+										<title>{isChinese ? "关闭" : "Close"}</title>
 										<line x1="18" y1="6" x2="6" y2="18" />
 										<line x1="6" y1="6" x2="18" y2="18" />
 									</svg>
