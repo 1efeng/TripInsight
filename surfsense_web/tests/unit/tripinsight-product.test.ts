@@ -2,10 +2,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
 import { getChatExampleCategories } from "../../lib/chat/example-prompts";
-import {
-	getProductLabel,
-	isHiddenPrimaryProductLabel,
-} from "../../lib/product-terminology";
+import { getProductLabel, isHiddenPrimaryProductLabel } from "../../lib/product-terminology";
 
 test("Chinese primary navigation uses TripInsight research vocabulary", () => {
 	assert.equal(getProductLabel("New Chat", "zh"), "新建研究");
@@ -43,19 +40,27 @@ test("Chinese research entry exposes only the three frozen TripInsight scenarios
 });
 
 test("destination research includes one explicit end-to-end PDF report demo", () => {
-	const zhDestination = getChatExampleCategories("zh").find((category) => category.id === "destination");
-	const enDestination = getChatExampleCategories("en").find((category) => category.id === "destination");
+	const zhDestination = getChatExampleCategories("zh").find(
+		(category) => category.id === "destination"
+	);
+	const enDestination = getChatExampleCategories("en").find(
+		(category) => category.id === "destination"
+	);
 
 	assert.ok(zhDestination);
 	assert.ok(enDestination);
 	assert.ok(
 		zhDestination.prompts.some(
-			(prompt) => prompt.includes("多来源研究") && prompt.includes("PDF") && prompt.includes("研究报告")
+			(prompt) =>
+				prompt.includes("多来源研究") && prompt.includes("PDF") && prompt.includes("研究报告")
 		)
 	);
 	assert.ok(
 		enDestination.prompts.some(
-			(prompt) => prompt.includes("multi-source research") && prompt.includes("PDF") && prompt.includes("research report")
+			(prompt) =>
+				prompt.includes("multi-source research") &&
+				prompt.includes("PDF") &&
+				prompt.includes("research report")
 		)
 	);
 });
@@ -81,7 +86,10 @@ test("research composer header keeps the primary surface focused on research", (
 });
 
 test("Chinese research composer exposes localized context and model controls", () => {
-	const addMenuSource = readFileSync("components/assistant-ui/composer-add-menu-drawer.tsx", "utf8");
+	const addMenuSource = readFileSync(
+		"components/assistant-ui/composer-add-menu-drawer.tsx",
+		"utf8"
+	);
 	const modelSelectorSource = readFileSync("components/new-chat/model-selector.tsx", "utf8");
 
 	for (const label of ["上传研究资料", "知识库", "数据源", "研究工具"]) {

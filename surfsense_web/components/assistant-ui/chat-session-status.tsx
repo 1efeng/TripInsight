@@ -51,7 +51,9 @@ export const ChatSessionStatus: FC<ChatSessionStatusProps> = ({
 		>
 			<Spinner size="xs" />
 			<span>
-				{isChinese ? `AI 正在响应 ${displayName} 的研究请求` : `Currently responding to ${displayName}`}
+				{isChinese
+					? `AI 正在响应 ${displayName} 的研究请求`
+					: `Currently responding to ${displayName}`}
 			</span>
 		</div>
 	);

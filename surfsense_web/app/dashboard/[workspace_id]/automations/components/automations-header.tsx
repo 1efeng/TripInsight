@@ -40,7 +40,9 @@ export function AutomationsHeader({
 					</h1>
 					{!loading && (
 						<span className="text-sm text-muted-foreground">
-							{isChinese ? `${total} 个任务` : `${total} ${total === 1 ? "automation" : "automations"}`}
+							{isChinese
+								? `${total} 个任务`
+								: `${total} ${total === 1 ? "automation" : "automations"}`}
 						</span>
 					)}
 				</div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { Binoculars, MessagesSquare, Radar, type LucideIcon, WandSparkles, X } from "lucide-react";
+import { Binoculars, type LucideIcon, MessagesSquare, Radar, WandSparkles, X } from "lucide-react";
 import { memo, useCallback, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";

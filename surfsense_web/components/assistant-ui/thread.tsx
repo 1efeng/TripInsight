@@ -89,6 +89,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
 import { Switch } from "@/components/ui/switch";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { useLocaleContext } from "@/contexts/LocaleContext";
 import { getConnectorIcon } from "@/contracts/enums/connectorIcons";
 import {
 	CONNECTOR_ICON_TO_TYPES,
@@ -97,7 +98,6 @@ import {
 	getToolIcon,
 } from "@/contracts/enums/toolIcons";
 import type { SearchSourceConnector } from "@/contracts/types/connector.types";
-import { useLocaleContext } from "@/contexts/LocaleContext";
 import { useBatchCommentsPreload } from "@/hooks/use-comments";
 import { useCommentsSync } from "@/hooks/use-comments-sync";
 import { useMediaQuery } from "@/hooks/use-media-query";
@@ -971,7 +971,9 @@ const ConnectedScraperIcons: FC<{ workspaceId: number }> = ({ workspaceId }) => 
 								</Avatar>
 							</TooltipTrigger>
 							<TooltipContent side="bottom">
-								{locale === "zh" ? `${platform.label} 数据源可用` : `${platform.label} source available`}
+								{locale === "zh"
+									? `${platform.label} 数据源可用`
+									: `${platform.label} source available`}
 							</TooltipContent>
 						</Tooltip>
 					);
@@ -1236,7 +1238,9 @@ const ComposerAction: FC<ComposerActionProps> = ({
 													) : row.health === "failed" ? (
 														<TriangleAlert
 															className="h-3.5 w-3.5 shrink-0 text-destructive"
-															aria-label={row.errorMessage ?? (isChinese ? "索引失败" : "Indexing failed")}
+															aria-label={
+																row.errorMessage ?? (isChinese ? "索引失败" : "Indexing failed")
+															}
 														/>
 													) : row.accountCount > 1 ? (
 														<span className="shrink-0 text-xs text-muted-foreground">

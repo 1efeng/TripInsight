@@ -55,7 +55,13 @@ def test_research_protocol_overlays_generic_routing_after_grounding_and_context(
     protocol_index = prompt.index("<tripinsight_research_protocol>")
     specialists_index = prompt.index("<specialists>")
 
-    assert kb_index < dynamic_context_index < routing_index < protocol_index < specialists_index
+    assert (
+        kb_index
+        < dynamic_context_index
+        < routing_index
+        < protocol_index
+        < specialists_index
+    )
 
 
 def test_disabling_default_instructions_also_disables_product_research_protocol():

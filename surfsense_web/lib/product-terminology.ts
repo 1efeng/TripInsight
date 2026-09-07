@@ -1,16 +1,16 @@
 const ZH_PRODUCT_LABELS: Record<string, string> = {
 	"New Chat": "新建研究",
-	"新对话": "新建研究",
+	新对话: "新建研究",
 	Chats: "研究记录",
-	"对话": "研究记录",
+	对话: "研究记录",
 	Recents: "最近研究",
-	"最近": "最近研究",
+	最近: "最近研究",
 	Automations: "自动化",
 	Artifacts: "研究报告",
 	Connectors: "数据源",
 	Documents: "知识库",
-	"文档": "知识库",
-	"连接器": "数据源",
+	文档: "知识库",
+	连接器: "数据源",
 	"Watch Local Folder": "监控本地资料",
 };
 

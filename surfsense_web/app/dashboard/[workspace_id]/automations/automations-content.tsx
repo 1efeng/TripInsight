@@ -62,7 +62,9 @@ export function AutomationsContent({ workspaceId }: AutomationsContentProps) {
 				<Alert variant="destructive">
 					<AlertCircle aria-hidden />
 					<AlertDescription>
-						{isChinese ? `自动化任务加载失败：${error.message}` : `Couldn't load automations: ${error.message}`}
+						{isChinese
+							? `自动化任务加载失败：${error.message}`
+							: `Couldn't load automations: ${error.message}`}
 					</AlertDescription>
 				</Alert>
 			</>

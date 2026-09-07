@@ -170,9 +170,7 @@ export function ComposerAddMenuDrawer({
 						}}
 					>
 						<Upload className="size-4 shrink-0 text-muted-foreground" />
-						<span className="flex-1 text-left">
-							{isChinese ? "上传研究资料" : "Upload Files"}
-						</span>
+						<span className="flex-1 text-left">{isChinese ? "上传研究资料" : "Upload Files"}</span>
 					</button>
 					<button
 						type="button"
@@ -189,16 +187,12 @@ export function ComposerAddMenuDrawer({
 					</button>
 					<button type="button" className={ROW} onClick={() => push({ kind: "connectors" })}>
 						<Unplug className="size-4 shrink-0 text-muted-foreground" />
-						<span className="flex-1 text-left">
-							{isChinese ? "数据源" : "MCP Connectors"}
-						</span>
+						<span className="flex-1 text-left">{isChinese ? "数据源" : "MCP Connectors"}</span>
 						<ChevronRight className="size-4 shrink-0 text-muted-foreground" />
 					</button>
 					<button type="button" className={ROW} onClick={() => push({ kind: "tools" })}>
 						<Settings2 className="size-4 shrink-0 text-muted-foreground" />
-						<span className="flex-1 text-left">
-							{isChinese ? "研究工具" : "Manage Tools"}
-						</span>
+						<span className="flex-1 text-left">{isChinese ? "研究工具" : "Manage Tools"}</span>
 						<ChevronRight className="size-4 shrink-0 text-muted-foreground" />
 					</button>
 				</>
@@ -230,9 +224,7 @@ export function ComposerAddMenuDrawer({
 								) : row.health === "failed" ? (
 									<TriangleAlert
 										className="size-4 shrink-0 text-destructive"
-										aria-label={
-											row.errorMessage ?? (isChinese ? "索引失败" : "Indexing failed")
-										}
+										aria-label={row.errorMessage ?? (isChinese ? "索引失败" : "Indexing failed")}
 									/>
 								) : row.accountCount > 1 ? (
 									<span className="shrink-0 text-xs text-muted-foreground">{row.accountCount}</span>
