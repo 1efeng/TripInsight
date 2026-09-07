@@ -3,6 +3,7 @@
 import { ChevronRight } from "lucide-react";
 import { useState } from "react";
 import { Collapsible, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { useLocaleContext } from "@/contexts/LocaleContext";
 import { getProductLabel } from "@/lib/product-terminology";
 import { cn } from "@/lib/utils";
 
@@ -30,7 +31,8 @@ export function SidebarSection({
 	fillHeight = false,
 }: SidebarSectionProps) {
 	const [isOpen, setIsOpen] = useState(defaultOpen);
-	const displayTitle = getProductLabel(title);
+	const { locale } = useLocaleContext();
+	const displayTitle = getProductLabel(title, locale);
 
 	return (
 		<Collapsible
@@ -94,7 +96,6 @@ export function SidebarSection({
 						{children}
 					</div>
 				</div>
-			</div>
 		</Collapsible>
 	);
 }
