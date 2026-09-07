@@ -34,6 +34,8 @@ def test_tripinsight_research_protocol_resource_resolves():
     assert "Only after the research evidence is available" in protocol
     assert "task(deliverables, ...)" in protocol
     assert "Do not create a file for every research question" in protocol
+    assert "Do not present SurfSense documentation" in protocol
+    assert "overrides generic upstream product" in protocol
 
 
 def test_default_main_prompt_uses_tripinsight_identity_and_research_protocol():
