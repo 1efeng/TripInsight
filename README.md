@@ -112,24 +112,26 @@ TripInsight 当前围绕四个关键词建设：
 ### Phase 1 — TripInsight 产品化
 
 - [x] 独立 TripInsight 首页与品牌定位
-- [ ] 工作台信息架构调整
-- [ ] Research 场景模板
-- [ ] 旅游业务示例数据与 Demo
-- [ ] 核心模块文案与命名统一
+- [x] 工作台信息架构调整
+- [x] Research 场景模板
+- [x] 旅游业务示例与端到端 PDF Research Report Demo
+- [x] 核心 Thread、知识库、数据源、报告与自动化文案统一
 
 ### Phase 2 — 旅游 Research Agent
 
-- [ ] 目的地研究任务模板
-- [ ] 多源旅游数据研究流程
-- [ ] 研究结果引用与证据核验
-- [ ] Traveler Insight 输出结构
+- [x] 目的地研究任务模板
+- [x] 多源旅游数据研究协议
+- [x] 研究结果引用、时效性与证据冲突约束
+- [x] Traveler Insight / Destination Monitoring 输出结构
+- [x] “先研究、后生成报告”的两阶段交付协议
+- [ ] Research Eval / Citation Eval 数据集与基线
 
 ### Phase 3 — Destination Intelligence
 
-- [ ] 目的地变化监控
-- [ ] Research Automation
-- [ ] Destination Brief
-- [ ] Research Eval / Citation Eval
+- [ ] 目的地变化监控的产品化验证
+- [ ] Research Automation 场景模板与 Demo
+- [ ] Destination Brief 历史变化对比
+- [ ] Research Eval / Citation Eval 持续评估
 
 详细产品定义见 [`docs/product.md`](./docs/product.md)。
 
@@ -141,4 +143,4 @@ SurfSense 主体代码采用 Apache License 2.0；其 `surfsense_backend/app/pro
 
 ## Status
 
-TripInsight 正在进行第一阶段产品化改造。
+TripInsight 已完成第一阶段核心产品化与 Research Agent 策略改造，当前正在进行构建、格式与单元测试验证。
