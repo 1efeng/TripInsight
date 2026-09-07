@@ -5,8 +5,6 @@ import type React from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { useLocaleContext } from "@/contexts/LocaleContext";
-import { getProductLabel, isHiddenPrimaryProductLabel } from "@/lib/product-terminology";
 import { cn } from "@/lib/utils";
 
 interface SidebarButtonProps {
@@ -66,13 +64,6 @@ export function SidebarButton({
 	className,
 	buttonProps,
 }: SidebarButtonProps) {
-	const { locale } = useLocaleContext();
-
-	if (isHiddenPrimaryProductLabel(label)) return null;
-
-	const displayLabel = getProductLabel(label, locale);
-	const displayTooltipContent =
-		typeof tooltipContent === "string" ? getProductLabel(tooltipContent, locale) : tooltipContent;
 	const activeClassName = "bg-accent text-accent-foreground";
 
 	const iconNode = isCollapsed
@@ -84,7 +75,7 @@ export function SidebarButton({
 			variant="ghost"
 			type="button"
 			onClick={onClick}
-			aria-label={isCollapsed ? displayLabel : undefined}
+			aria-label={isCollapsed ? label : undefined}
 			className={cn(baseClassName, isActive && activeClassName, className)}
 			{...buttonProps}
 		>
@@ -104,7 +95,7 @@ export function SidebarButton({
 					)}
 				>
 					<span className="flex min-w-0 items-center gap-1.5">
-						<span className="truncate">{displayLabel}</span>
+						<span className="truncate">{label}</span>
 						{!isCollapsed && badge && typeof badge !== "string" ? badge : null}
 						{!isCollapsed && badge && typeof badge === "string" ? (
 							<span className="inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-medium text-white">
@@ -129,11 +120,11 @@ export function SidebarButton({
 				</span>
 			)}
 
-			<span className="sr-only">{displayLabel}</span>
+			<span className="sr-only">{label}</span>
 		</Button>
 	);
 
-	const renderTooltip = isCollapsed || !!displayTooltipContent;
+	const renderTooltip = isCollapsed || !!tooltipContent;
 	if (!renderTooltip) {
 		return button;
 	}
@@ -143,13 +134,13 @@ export function SidebarButton({
 			<TooltipTrigger asChild>{button}</TooltipTrigger>
 			<TooltipContent side="right" className="max-w-xs">
 				{isCollapsed
-					? (displayTooltipContent ?? (
+					? (tooltipContent ?? (
 							<>
-								{displayLabel}
+								{label}
 								{typeof badge === "string" && ` (${badge})`}
 							</>
 						))
-					: displayTooltipContent}
+					: tooltipContent}
 			</TooltipContent>
 		</Tooltip>
 	);

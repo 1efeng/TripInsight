@@ -326,32 +326,32 @@ export function LayoutDataProvider({
 			(
 				[
 					{
-						title: "Automations",
+						title: tSidebar("automations"),
 						url: `/dashboard/${workspaceId}/automations`,
 						icon: AlarmClock,
 						isActive: isAutomationsActive,
 					},
 					{
-						title: "Artifacts",
+						title: tSidebar("artifacts"),
 						url: `/dashboard/${workspaceId}/artifacts`,
 						icon: Shapes,
 						isActive: isArtifactsActive,
 					},
 					{
-						title: "Connectors",
+						title: tSidebar("connectors"),
 						url: `/dashboard/${workspaceId}/connectors`,
 						icon: Unplug,
 						isActive: isConnectorsRoute,
 					},
 					{
-						title: "Playground",
+						title: tSidebar("playground"),
 						url: `/dashboard/${workspaceId}/playground`,
 						icon: SquareTerminal,
 						isActive: isPlaygroundRoute,
 					},
 					isMobile
 						? {
-								title: "Documents",
+								title: tSidebar("documents"),
 								url: `/dashboard/${workspaceId}/documents`,
 								icon: LibraryBig,
 								isActive: isDocumentsPage,
@@ -367,6 +367,7 @@ export function LayoutDataProvider({
 			isPlaygroundRoute,
 			isMobile,
 			isDocumentsPage,
+			tSidebar,
 		]
 	);
 
