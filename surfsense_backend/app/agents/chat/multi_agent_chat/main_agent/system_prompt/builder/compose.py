@@ -6,9 +6,9 @@ Section order (default flow)::
     [user's custom_system_instructions, if any]
     <core_behavior>                 # default body
     <knowledge_base_first>          # default body
-    <tripinsight_research_protocol> # default body
     <dynamic_context>               # always
     <routing>                       # default body
+    <tripinsight_research_protocol> # default body/product overlay
     <specialists>                   # always (dynamic roster)
     <tools>                         # always (vertical-slice)
     <memory_protocol>               # default body
@@ -71,12 +71,16 @@ def build_main_agent_system_prompt(
     if use_default_system_instructions:
         parts.append(_wrap(read_prompt_md("core_behavior.md")))
         parts.append(_wrap(read_prompt_md("kb_first.md")))
-        parts.append(_wrap(read_prompt_md("tripinsight_research_protocol.md")))
 
     parts.append(build_dynamic_context_section(visibility=visibility))
 
     if use_default_system_instructions:
         parts.append(_wrap(read_prompt_md("routing.md")))
+        # Product-specific research behavior is an overlay on top of the
+        # upstream generic routing contract. Keeping it after routing lets
+        # TripInsight specialize composite research/report requests without
+        # changing specialist or tool contracts.
+        parts.append(_wrap(read_prompt_md("tripinsight_research_protocol.md")))
 
     parts.append(build_specialists_section(registry_subagent_prompt_lines))
     parts.append(
