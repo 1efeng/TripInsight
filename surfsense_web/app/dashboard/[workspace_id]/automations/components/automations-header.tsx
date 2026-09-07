@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { useLocaleContext } from "@/contexts/LocaleContext";
 
 interface AutomationsHeaderProps {
 	workspaceId: number;
@@ -16,10 +17,9 @@ interface AutomationsHeaderProps {
 }
 
 /**
- * Page header: title + count + "Create via chat" CTA. Creation is intent-driven
- * (the create_automation tool runs inside chat with a HITL approval card), so
- * the CTA links to a new chat rather than opening a form. Model eligibility is
- * handled per-automation in the builder + approval card, not gated here.
+ * Product-facing automation header. Internally this remains SurfSense's
+ * automation runtime; TripInsight presents it as scheduled destination research
+ * and intelligence monitoring rather than introducing a second workflow system.
  */
 export function AutomationsHeader({
 	workspaceId,
@@ -28,15 +28,27 @@ export function AutomationsHeader({
 	canCreate,
 	showCreateCta = true,
 }: AutomationsHeaderProps) {
+	const { locale } = useLocaleContext();
+	const isChinese = locale === "zh";
+
 	return (
-		<div className="flex items-center justify-between gap-4 flex-wrap">
-			<div className="flex items-baseline gap-3">
-				<h1 className="text-xl md:text-2xl font-semibold text-foreground">Automations</h1>
-				{!loading && (
-					<span className="text-sm text-muted-foreground">
-						{total} {total === 1 ? "automation" : "automations"}
-					</span>
-				)}
+		<div className="flex items-start justify-between gap-4 flex-wrap">
+			<div>
+				<div className="flex items-baseline gap-3">
+					<h1 className="text-xl md:text-2xl font-semibold text-foreground">
+						{isChinese ? "自动化" : "Automations"}
+					</h1>
+					{!loading && (
+						<span className="text-sm text-muted-foreground">
+							{isChinese ? `${total} 个任务` : `${total} ${total === 1 ? "automation" : "automations"}`}
+						</span>
+					)}
+				</div>
+				<p className="mt-1.5 max-w-xl text-sm text-muted-foreground">
+					{isChinese
+						? "定期执行目的地研究、变化检查和情报 Brief，让需要持续跟踪的信息自动更新。"
+						: "Schedule destination research, change checks, and intelligence briefs so recurring research stays current."}
+				</p>
 			</div>
 			{canCreate && showCreateCta && (
 				<div className="flex items-center gap-2">
@@ -46,10 +58,14 @@ export function AutomationsHeader({
 						variant="ghost"
 						className="justify-start rounded-md bg-muted px-3 hover:bg-accent"
 					>
-						<Link href={`/dashboard/${workspaceId}/automations/new`}>Create manually</Link>
+						<Link href={`/dashboard/${workspaceId}/automations/new`}>
+							{isChinese ? "手动创建" : "Create manually"}
+						</Link>
 					</Button>
 					<Button asChild size="sm">
-						<Link href={`/dashboard/${workspaceId}/new-chat`}>Create via chat</Link>
+						<Link href={`/dashboard/${workspaceId}/new-chat`}>
+							{isChinese ? "让 AI 创建" : "Create with AI"}
+						</Link>
 					</Button>
 				</div>
 			)}
