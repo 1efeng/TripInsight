@@ -167,10 +167,10 @@ export function TripInsightHome() {
 								<div className="flex items-center justify-between border-b border-black/5 pb-4 dark:border-white/10">
 									<div>
 										<p className="text-sm font-medium">东京秋季目的地研究</p>
-										<p className="mt-1 text-xs text-zinc-500">Research Brief · 实时研究中</p>
+										<p className="mt-1 text-xs text-zinc-500">Research Brief · 示例界面</p>
 									</div>
 									<span className="rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300">
-										12 个来源
+										多源研究
 									</span>
 								</div>
 
@@ -196,9 +196,9 @@ export function TripInsightHome() {
 								</div>
 
 								<div className="rounded-xl bg-zinc-950 p-4 text-white dark:bg-white dark:text-zinc-950">
-									<p className="text-xs font-medium opacity-60">发现</p>
+									<p className="text-xs font-medium opacity-60">示例洞察</p>
 									<p className="mt-2 text-sm leading-6">
-										涩谷与银座仍是高热区域，但近期评论中“排队时间”和“夜间体验”成为增长最快的两个关注点。
+										近期评论中反复出现“排队时间”和“夜间体验”相关反馈，系统会将其标记为需要进一步核验的研究关注点。
 									</p>
 									<div className="mt-3 flex items-center gap-2 text-xs opacity-60">
 										<Quote className="h-3.5 w-3.5" />
