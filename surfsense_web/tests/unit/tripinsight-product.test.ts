@@ -42,6 +42,24 @@ test("Chinese research entry exposes only the three frozen TripInsight scenarios
 	assert.ok(categories.every((category) => category.prompts.length >= 3));
 });
 
+test("destination research includes one explicit end-to-end PDF report demo", () => {
+	const zhDestination = getChatExampleCategories("zh").find((category) => category.id === "destination");
+	const enDestination = getChatExampleCategories("en").find((category) => category.id === "destination");
+
+	assert.ok(zhDestination);
+	assert.ok(enDestination);
+	assert.ok(
+		zhDestination.prompts.some(
+			(prompt) => prompt.includes("多来源研究") && prompt.includes("PDF") && prompt.includes("研究报告")
+		)
+	);
+	assert.ok(
+		enDestination.prompts.some(
+			(prompt) => prompt.includes("multi-source research") && prompt.includes("PDF") && prompt.includes("research report")
+		)
+	);
+});
+
 test("English research entry mirrors the same scenario structure", () => {
 	const categories = getChatExampleCategories("en");
 
