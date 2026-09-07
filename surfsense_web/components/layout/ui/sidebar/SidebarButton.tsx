@@ -5,6 +5,7 @@ import type React from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { useLocaleContext } from "@/contexts/LocaleContext";
 import { getProductLabel, isHiddenPrimaryProductLabel } from "@/lib/product-terminology";
 import { cn } from "@/lib/utils";
 
@@ -65,11 +66,13 @@ export function SidebarButton({
 	className,
 	buttonProps,
 }: SidebarButtonProps) {
+	const { locale } = useLocaleContext();
+
 	if (isHiddenPrimaryProductLabel(label)) return null;
 
-	const displayLabel = getProductLabel(label);
+	const displayLabel = getProductLabel(label, locale);
 	const displayTooltipContent =
-		typeof tooltipContent === "string" ? getProductLabel(tooltipContent) : tooltipContent;
+		typeof tooltipContent === "string" ? getProductLabel(tooltipContent, locale) : tooltipContent;
 	const activeClassName = "bg-accent text-accent-foreground";
 
 	const iconNode = isCollapsed
