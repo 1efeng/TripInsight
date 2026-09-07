@@ -30,6 +30,10 @@ def test_tripinsight_research_protocol_resource_resolves():
     assert "publication, event, and collection dates" in protocol
     assert "credible sources conflict" in protocol
     assert "Never invent" in protocol
+    assert "two-stage task" in protocol
+    assert "Only after the research evidence is available" in protocol
+    assert "task(deliverables, ...)" in protocol
+    assert "Do not create a file for every research question" in protocol
 
 
 def test_default_main_prompt_uses_tripinsight_identity_and_research_protocol():
@@ -40,14 +44,16 @@ def test_default_main_prompt_uses_tripinsight_identity_and_research_protocol():
     assert "<tripinsight_research_protocol>" in prompt
 
 
-def test_research_protocol_follows_grounding_and_precedes_dynamic_context():
+def test_research_protocol_overlays_generic_routing_after_grounding_and_context():
     prompt = _build_prompt()
 
     kb_index = prompt.index("<knowledge_base_first>")
-    protocol_index = prompt.index("<tripinsight_research_protocol>")
     dynamic_context_index = prompt.index("<dynamic_context>")
+    routing_index = prompt.index("<routing>")
+    protocol_index = prompt.index("<tripinsight_research_protocol>")
+    specialists_index = prompt.index("<specialists>")
 
-    assert kb_index < protocol_index < dynamic_context_index
+    assert kb_index < dynamic_context_index < routing_index < protocol_index < specialists_index
 
 
 def test_disabling_default_instructions_also_disables_product_research_protocol():
@@ -57,11 +63,12 @@ def test_disabling_default_instructions_also_disables_product_research_protocol(
     assert "<tripinsight_research_protocol>" not in prompt
     assert "<knowledge_base_first>" not in prompt
     assert "<core_behavior>" not in prompt
+    assert "<routing>" not in prompt
 
 
 def test_kb_first_does_not_present_upstream_docs_as_tripinsight_docs():
     kb_first = read_prompt_md("kb_first.md")
 
-    assert 'meta-questions about\nTripInsight' in kb_first
+    assert "TripInsight" in kb_first
     assert "Do not present upstream SurfSense product" in kb_first
     assert "https://www.surfsense.com/docs" not in kb_first
