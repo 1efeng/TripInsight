@@ -24,6 +24,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Spinner } from "@/components/ui/spinner";
+import { useLocaleContext } from "@/contexts/LocaleContext";
 import type { ConnectionRead, ModelRead } from "@/contracts/types/model-connections.types";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { AUTO_PROVIDER_ICON_KEY, getProviderIcon } from "@/lib/provider-icons";
@@ -45,19 +46,19 @@ type ChatModel = ModelRead & {
 
 const AUTO_CHAT_MODEL_ID = 0;
 
-function connectionLabel(connection: ConnectionRead) {
-	if (connection.scope === "GLOBAL") return "Global";
+function connectionLabel(connection: ConnectionRead, locale: string) {
+	if (connection.scope === "GLOBAL") return locale === "zh" ? "全局模型" : "Global";
 	return providerDisplay(connection.provider).name;
 }
 
-function flattenChatModels(connections: ConnectionRead[]) {
+function flattenChatModels(connections: ConnectionRead[], locale: string) {
 	return connections.flatMap((connection) =>
 		connection.models
 			.filter((model) => model.enabled && Boolean(model.supports_chat))
 			.map((model) => ({
 				...model,
 				connectionId: connection.id,
-				connectionLabel: connectionLabel(connection),
+				connectionLabel: connectionLabel(connection, locale),
 				connectionScope: connection.scope,
 				provider: connection.provider,
 			}))
@@ -99,6 +100,8 @@ function groupedModels(models: ChatModel[]) {
 export function ModelSelector({ workspaceId, className, onChatModelSelected }: ModelSelectorProps) {
 	const router = useRouter();
 	const isMobile = useIsMobile();
+	const { locale } = useLocaleContext();
+	const isChinese = locale === "zh";
 	const [open, setOpen] = useState(false);
 	const [search, setSearch] = useState("");
 	const [scrollPos, setScrollPos] = useState<"top" | "middle" | "bottom">("top");
@@ -110,8 +113,8 @@ export function ModelSelector({ workspaceId, className, onChatModelSelected }: M
 	const updateRoles = useAtomValue(updateModelRolesMutationAtom);
 
 	const allChatModels = useMemo(
-		() => flattenChatModels([...globalConnections, ...connections]),
-		[globalConnections, connections]
+		() => flattenChatModels([...globalConnections, ...connections], locale),
+		[globalConnections, connections, locale]
 	);
 
 	const visibleChatModels = useMemo(
@@ -163,7 +166,7 @@ export function ModelSelector({ workspaceId, className, onChatModelSelected }: M
 					<Input
 						value={search}
 						onChange={(event) => setSearch(event.target.value)}
-						placeholder="Search chat models"
+						placeholder={isChinese ? "搜索模型" : "Search chat models"}
 						className="h-8 border-0 bg-transparent pl-6 text-sm shadow-none"
 					/>
 				</div>
@@ -184,7 +187,7 @@ export function ModelSelector({ workspaceId, className, onChatModelSelected }: M
 					<div className="min-w-0 flex-1">
 						<div className="flex min-w-0 items-center gap-2 font-medium">
 							{getProviderIcon(AUTO_PROVIDER_ICON_KEY, { className: "size-4 shrink-0" })}
-							<span className="truncate">Auto</span>
+							<span className="truncate">{isChinese ? "自动选择" : "Auto"}</span>
 						</div>
 					</div>
 					{selectedModelId === AUTO_CHAT_MODEL_ID ? <Check className="h-4 w-4" /> : null}
@@ -196,8 +199,12 @@ export function ModelSelector({ workspaceId, className, onChatModelSelected }: M
 				) : Object.keys(groups).length === 0 ? (
 					<div className="px-3 py-8 text-center text-sm text-muted-foreground">
 						{hasSearchQuery
-							? "No matching chat models."
-							: "No enabled chat models. Add or enable models in Settings."}
+							? isChinese
+								? "没有匹配的模型。"
+								: "No matching chat models."
+							: isChinese
+								? "暂无可用模型，请先在设置中添加或启用模型。"
+								: "No enabled chat models. Add or enable models in Settings."}
 					</div>
 				) : (
 					Object.entries(groups).map(([connection, models]) => (
@@ -229,7 +236,7 @@ export function ModelSelector({ workspaceId, className, onChatModelSelected }: M
 												variant="secondary"
 												className="h-5 shrink-0 rounded-sm border-0 bg-popover-foreground/10 px-1.5 text-[11px] text-popover-foreground hover:bg-popover-foreground/10"
 											>
-												Free
+												{isChinese ? "免费" : "Free"}
 											</Badge>
 										) : null}
 										{/*
@@ -257,7 +264,8 @@ export function ModelSelector({ workspaceId, className, onChatModelSelected }: M
 					className="w-full justify-start rounded-md bg-foreground/5 hover:bg-foreground/10 hover:text-foreground"
 					onClick={manageModelConnections}
 				>
-					<SlidersHorizontal className="h-4 w-4" /> Manage models
+					<SlidersHorizontal className="h-4 w-4" />
+					{isChinese ? "管理模型" : "Manage models"}
 				</Button>
 			</div>
 		</div>
@@ -268,7 +276,7 @@ export function ModelSelector({ workspaceId, className, onChatModelSelected }: M
 			type="button"
 			variant="ghost"
 			size="sm"
-			aria-label="Select chat model"
+			aria-label={isChinese ? "选择模型" : "Select chat model"}
 			className={cn(
 				"h-8 min-w-0 gap-2 rounded-md px-3 text-muted-foreground transition-colors",
 				"select-none",
@@ -283,7 +291,7 @@ export function ModelSelector({ workspaceId, className, onChatModelSelected }: M
 				: getProviderIcon(AUTO_PROVIDER_ICON_KEY, { className: "size-4 shrink-0" })}
 			{showIconOnlyTrigger ? null : (
 				<span className="min-w-0 flex-1 truncate text-sm">
-					{selected ? modelName(selected) : "Auto"}
+					{selected ? modelName(selected) : isChinese ? "自动选择" : "Auto"}
 				</span>
 			)}
 			<ChevronDown className="h-3.5 w-3.5 shrink-0" />
@@ -297,7 +305,7 @@ export function ModelSelector({ workspaceId, className, onChatModelSelected }: M
 				<DrawerContent className="max-h-[85vh]">
 					<DrawerHandle />
 					<DrawerHeader>
-						<DrawerTitle>Select Chat Model</DrawerTitle>
+						<DrawerTitle>{isChinese ? "选择研究模型" : "Select Chat Model"}</DrawerTitle>
 					</DrawerHeader>
 					{content}
 				</DrawerContent>
